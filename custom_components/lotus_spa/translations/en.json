@@ -3,7 +3,7 @@
     "step": {
       "auth": {
         "title": "Sign in with Lotus",
-        "description": "No Lotus account yet? Take a look at the live demo: https://app.lotusswimspa.de/demo"
+        "description": "No Lotus account yet? Take a look at the live demo: {demo_url}"
       },
       "pick_implementation": {
         "title": "Choose sign-in"
@@ -15,7 +15,7 @@
     },
     "abort": {
       "already_configured": "This Lotus account is already connected.",
-      "abo_noetig": "Home Assistant is part of the Lotus subscription. With a valid subscription you can connect your spa here. Subscription: https://app.lotusswimspa.de/abo",
+      "abo_noetig": "Home Assistant is part of the Lotus subscription. With a valid subscription you can connect your spa here. Subscription: {abo_url}",
       "nicht_erreichbar": "Lotus cannot be reached right now. Please try again in a moment.",
       "anderes_konto": "Please sign in with the same Lotus account you used during setup.",
       "reauth_successful": "Connection renewed.",
@@ -278,11 +278,30 @@
         "name": "Subscription",
         "state": {
           "abo": "With subscription",
+          "abo_unbefristet": "Subscription (no end date)",
           "ohne_abo": "Without subscription"
         }
       },
       "abo_bis": {
         "name": "Subscription valid until"
+      },
+      "kwh_heute": {
+        "name": "Energy today (estimated)"
+      },
+      "sonne_heute": {
+        "name": "Solar today (estimated)"
+      },
+      "netz_heute": {
+        "name": "Grid today (estimated)"
+      },
+      "sonnenanteil_heute": {
+        "name": "Solar share today"
+      },
+      "kosten_jahr": {
+        "name": "Cost this year"
+      },
+      "sonne_jahr": {
+        "name": "Solar this year (estimated)"
       }
     },
     "time": {

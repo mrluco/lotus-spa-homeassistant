@@ -61,7 +61,8 @@ Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl ste
 | Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt, wenn deine Steuerung nicht misst) |
 | Beckeninhalt, Strompreis | ansehen und ändern wie in der App; eine Änderung gilt auch dort |
 | Lotus Box | nur wenn dein Spa über eine Lotus Box verbunden ist: Verbindung und WLAN-Empfang, dazu WLAN-Name und Signal, soweit du sie in der App siehst |
-| Lotus Konto | dein Abo und bis wann es gilt |
+| Energie, Sonne und Netz heute, Sonnenanteil, Kosten und Sonne dieses Jahr | wie die Verbrauchsseite der App, geschätzt |
+| Lotus Konto | dein Abo und bis wann es gilt (bei einem Abo ohne Ende entfällt das Datum) |
 
 Badezeiten, Filterzeiten und Betriebsart ändert Home Assistant höchstens viermal am Tag, in der App jederzeit. Aufgaben anlegen oder löschen geht in der App. Was du in der App nur ansehen kannst, erscheint in Home Assistant als Anzeige.
 

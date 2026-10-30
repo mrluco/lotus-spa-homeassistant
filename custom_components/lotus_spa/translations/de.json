@@ -3,7 +3,7 @@
     "step": {
       "auth": {
         "title": "Mit Lotus anmelden",
-        "description": "Noch kein Lotus-Konto? Sieh dir die Live-Demo an: https://app.lotusswimspa.de/demo"
+        "description": "Noch kein Lotus-Konto? Sieh dir die Live-Demo an: {demo_url}"
       },
       "pick_implementation": {
         "title": "Anmeldung wählen"
@@ -15,7 +15,7 @@
     },
     "abort": {
       "already_configured": "Dieses Lotus-Konto ist schon verbunden.",
-      "abo_noetig": "Home Assistant gehört zum Lotus-Abo. Mit einem gültigen Abo kannst du deinen Spa hier verbinden. Zum Abo: https://app.lotusswimspa.de/abo",
+      "abo_noetig": "Home Assistant gehört zum Lotus-Abo. Mit einem gültigen Abo kannst du deinen Spa hier verbinden. Zum Abo: {abo_url}",
       "nicht_erreichbar": "Lotus ist gerade nicht erreichbar. Bitte versuche es gleich noch einmal.",
       "anderes_konto": "Bitte melde dich mit demselben Lotus-Konto an wie beim Einrichten.",
       "reauth_successful": "Verbindung erneuert.",
@@ -278,11 +278,30 @@
         "name": "Abo",
         "state": {
           "abo": "mit Abo",
+          "abo_unbefristet": "Abo (unbefristet)",
           "ohne_abo": "ohne Abo"
         }
       },
       "abo_bis": {
         "name": "Abo gültig bis"
+      },
+      "kwh_heute": {
+        "name": "Energie heute (geschätzt)"
+      },
+      "sonne_heute": {
+        "name": "Sonne heute (geschätzt)"
+      },
+      "netz_heute": {
+        "name": "Netz heute (geschätzt)"
+      },
+      "sonnenanteil_heute": {
+        "name": "Sonnenanteil heute"
+      },
+      "kosten_jahr": {
+        "name": "Kosten dieses Jahr"
+      },
+      "sonne_jahr": {
+        "name": "Sonne dieses Jahr (geschätzt)"
       }
     },
     "time": {

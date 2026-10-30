@@ -7,7 +7,7 @@ from aiohttp import ClientError, ClientResponse
 from homeassistant.exceptions import OAuth2TokenRequestBaseError
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
 
-from .const import ABO_URL, API_URL
+from .const import ABO_URL, API_URL, KOPF_FASSUNG
 
 ZEITLIMIT_S = 20
 
@@ -65,13 +65,14 @@ class LotusNichtErreichbar(LotusFehler):
 
 class LotusApi:
 
-    def __init__(self, sitzung: OAuth2Session) -> None:
+    def __init__(self, sitzung: OAuth2Session, fassung: str = "") -> None:
         self._sitzung = sitzung
+        self._kopf = {KOPF_FASSUNG: fassung} if fassung else {}
 
     async def _anfrage(self, methode: str, pfad: str, koerper: dict[str, Any] | None = None) -> dict[str, Any]:
         try:
             async with asyncio.timeout(ZEITLIMIT_S):
-                antwort = await self._sitzung.async_request(methode, f"{API_URL}/{pfad}", json=koerper)
+                antwort = await self._sitzung.async_request(methode, f"{API_URL}/{pfad}", json=koerper, headers=dict(self._kopf))
                 return await auswerten(antwort)
         except (LotusFehler, OAuth2TokenRequestBaseError):
             raise

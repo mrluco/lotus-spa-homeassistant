@@ -10,6 +10,8 @@ AUTORISIEREN_URL: Final = f"{BASIS_URL}/oauth/autorisieren"
 TOKEN_URL: Final = f"{BASIS_URL}/oauth/token"
 API_URL: Final = f"{BASIS_URL}/api/ha/v1"
 ABO_URL: Final = f"{BASIS_URL}/abo"
+DEMO_URL: Final = f"{BASIS_URL}/demo"
+KOPF_FASSUNG: Final = "X-Lotus-Integration"
 CLIENT_ID: Final = "lotus-spa-homeassistant"
 
 ABFRAGE: Final = timedelta(seconds=60)
@@ -19,7 +21,7 @@ HINWEIS_ABO: Final = "abo_noetig"
 
 PFLEGELAUF_AUS: Final = "aus"
 
-VERSION: Final = "0.3.0"
+VERSION: Final = "0.3.1"
 HERSTELLER: Final = "Lotus"
 
 LESEN_AN_AUS: Final = {
@@ -49,7 +51,7 @@ ABO_FUNKTIONEN: Final = {
     "en": {"urlaub": "vacation mode", "absenkung": "setback", "warm_um": "warm at", "wartungspause": "maintenance pause", "badezeiten": "bathing times",
            "filterung": "filter times", "solar": "heating with the sun", "verbrauch": "energy and cost"},
 }
-ABO_ARTEN: Final = ("abo", "ohne_abo")
+ABO_ARTEN: Final = ("abo", "abo_unbefristet", "ohne_abo")
 EMPFANG: Final = {"sehr gut": "sehr_gut", "gut": "gut", "schwach": "schwach", "sehr schwach": "sehr_schwach"}
 WETTER_QUELLE: Final = "Deutscher Wetterdienst"
 ALT_FILTERUNG: Final = "text_filterung"

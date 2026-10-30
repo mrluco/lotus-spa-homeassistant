@@ -5,7 +5,7 @@ from typing import Any
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import LotusConfigEntry, LotusKoordinator
@@ -14,7 +14,7 @@ from .schalter import AUS, art, darf, erste_stufe, ist_an, schalter_liste, symbo
 
 PARALLEL_UPDATES = 1
 QUELLE = {"urlaubsmodus": "urlaub", "abendlicht": "abendlicht"}
-WUNSCH_S = 30.0
+WUNSCH_S = 15.0
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
@@ -62,15 +62,14 @@ class LotusSchaltbar(LotusEntitaet):
         return ist_an(self.schalter)
 
     async def schalten(self, modus: str) -> None:
-        await self.befehl("schalten", titel=self.titel, modus=modus)
         self._wunsch = (modus, time.monotonic())
         self.async_write_ha_state()
-        await self.coordinator.async_request_refresh()
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self._wunsch = None
-        super()._handle_coordinator_update()
+        try:
+            await self.befehl("schalten", titel=self.titel, modus=modus)
+        except Exception:
+            self._wunsch = None
+            self.async_write_ha_state()
+            raise
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         await self.schalten(erste_stufe(self.schalter))

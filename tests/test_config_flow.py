@@ -32,6 +32,7 @@ async def _bis_zum_token(hass: HomeAssistant, client_fabrik: ClientSessionGenera
     if result["type"] is FlowResultType.FORM:
         result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.EXTERNAL_STEP
+    assert result["description_placeholders"]["demo_url"] == "https://app.lotusswimspa.de/demo"
     url = urlparse(result["url"])
     q = {k: v[0] for k, v in parse_qs(url.query).items()}
     state = config_entry_oauth2_flow._encode_jwt(hass, {"flow_id": result["flow_id"], "redirect_uri": MY_RUECK})
@@ -64,6 +65,7 @@ async def test_ohne_abo_kein_eintrag(hass: HomeAssistant, hass_client_no_auth: C
     aioclient_mock.get(f"{API_URL}/konto", status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo."})
     result = await hass.config_entries.flow.async_configure(flow_id)
     assert result["type"] is FlowResultType.ABORT and result["reason"] == "abo_noetig"
+    assert result["description_placeholders"] == {"abo_url": "https://app.lotusswimspa.de/abo"}
     assert not hass.config_entries.async_entries(DOMAIN)
 
 

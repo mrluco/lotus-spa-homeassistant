@@ -203,6 +203,24 @@
       },
       "abo_bis": {
         "default": "mdi:calendar-end"
+      },
+      "kwh_heute": {
+        "default": "mdi:lightning-bolt"
+      },
+      "sonne_heute": {
+        "default": "mdi:solar-power"
+      },
+      "netz_heute": {
+        "default": "mdi:transmission-tower"
+      },
+      "sonnenanteil_heute": {
+        "default": "mdi:white-balance-sunny"
+      },
+      "kosten_jahr": {
+        "default": "mdi:cash-multiple"
+      },
+      "sonne_jahr": {
+        "default": "mdi:solar-power-variant"
       }
     },
     "select": {

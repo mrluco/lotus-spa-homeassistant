@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
-from homeassistant.const import SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory, UnitOfEnergy, UnitOfPower, UnitOfTemperature
-from homeassistant.core import HomeAssistant
+from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory, UnitOfEnergy, UnitOfPower, UnitOfTemperature
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -46,6 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
             neu.append(LotusWarmUm(koordinator, g_))
         if "energie" in daten and daten.get("energie") is not None:
             neu += [LotusEnergie(koordinator, g_), LotusLeistung(koordinator, g_), LotusKostenHeute(koordinator, g_)]
+            neu += [LotusEnergieWert(koordinator, g_, *art_) for art_ in ENERGIE_WERTE]
         box = daten.get("box") or {}
         if box.get("id"):
             neu.append(LotusEmpfang(koordinator, g_))
@@ -60,8 +61,30 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         if daten.get("badezeiten") or daten.get("naechste_badezeit"):
             neu += [LotusBadezeitPunkt(koordinator, g_, feld) for feld in ("beginn", "ende")]
     if koordinator.konto is not None:
-        neu += [LotusKontoAbo(koordinator), LotusKontoBis(koordinator)]
+        neu.append(LotusKontoAbo(koordinator))
     hinzufuegen(neu)
+    if koordinator.konto is not None:
+        abo_bis_folgen(hass, eintrag, koordinator, hinzufuegen)
+
+
+def abo_bis_folgen(hass: HomeAssistant, eintrag: LotusConfigEntry, koordinator: LotusKoordinator, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
+    register = er.async_get(hass)
+    kennung = f"konto_{eintrag.entry_id}_abo_bis"
+    stand = {"da": False}
+
+    @callback
+    def pruefen() -> None:
+        hat_ende = bool((koordinator.konto or {}).get("bis"))
+        if hat_ende and not stand["da"]:
+            stand["da"] = True
+            hinzufuegen([LotusKontoBis(koordinator)])
+        elif not hat_ende:
+            stand["da"] = False
+            if alt := register.async_get_entity_id("sensor", DOMAIN, kennung):
+                register.async_remove(alt)
+
+    pruefen()
+    eintrag.async_on_unload(koordinator.async_add_listener(pruefen))
 
 
 class LotusTemperatur(LotusEntitaet, SensorEntity):
@@ -194,7 +217,7 @@ class LotusWartungTermin(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool(self.aufgabe(self.schluessel))
+        return super().available and bool(self.aufgabe(self.schluessel).get("faellig_am"))
 
     @property
     def native_value(self) -> date | None:
@@ -220,7 +243,7 @@ class LotusEnde(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool(self.daten.get(self.was))
+        return super().available and bool((self.daten.get(self.was) or {}).get("bis"))
 
     @property
     def native_value(self) -> datetime | None:
@@ -250,6 +273,10 @@ class LotusWarmUm(LotusEntitaet, SensorEntity):
 
     def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
         super().__init__(koordinator, geraet, "warm_um")
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool((self.daten.get("warm_um") or {}).get("zeit"))
 
     @property
     def native_value(self) -> datetime | None:
@@ -311,6 +338,38 @@ class LotusKostenHeute(LotusEnergieBasis):
     @property
     def native_value(self) -> float | None:
         wert = self.energie.get("kosten_heute")
+        return float(wert) if isinstance(wert, (int, float)) else None
+
+
+ENERGIE_WERTE: tuple[tuple[str, SensorDeviceClass | None, SensorStateClass, str, int], ...] = (
+    ("kwh_heute", SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING, UnitOfEnergy.KILO_WATT_HOUR, 2),
+    ("sonne_heute", SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING, UnitOfEnergy.KILO_WATT_HOUR, 2),
+    ("netz_heute", SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING, UnitOfEnergy.KILO_WATT_HOUR, 2),
+    ("sonnenanteil_heute", None, SensorStateClass.MEASUREMENT, PERCENTAGE, 0),
+    ("kosten_jahr", SensorDeviceClass.MONETARY, SensorStateClass.TOTAL, "EUR", 2),
+    ("sonne_jahr", SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING, UnitOfEnergy.KILO_WATT_HOUR, 2),
+)
+
+
+class LotusEnergieWert(LotusEnergieBasis):
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, schluessel: str, klasse: SensorDeviceClass | None, art: SensorStateClass,
+                 einheit: str, stellen: int) -> None:
+        super().__init__(koordinator, geraet, schluessel)
+        self.schluessel = schluessel
+        self._attr_translation_key = schluessel
+        self._attr_device_class = klasse
+        self._attr_state_class = art
+        self._attr_native_unit_of_measurement = einheit
+        self._attr_suggested_display_precision = stellen
+
+    @property
+    def available(self) -> bool:
+        return super().available and isinstance(self.energie.get(self.schluessel), (int, float))
+
+    @property
+    def native_value(self) -> float | None:
+        wert = self.energie.get(self.schluessel)
         return float(wert) if isinstance(wert, (int, float)) else None
 
 

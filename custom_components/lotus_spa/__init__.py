@@ -7,7 +7,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import issue_registry as ir
 
 from .api import LotusApi
-from .const import DOMAIN, HERSTELLER, HINWEIS_ABLAUF, HINWEIS_ABO, HINWEIS_FUNKTIONEN, HINWEIS_ZAHLUNG, KONTO_URL
+from .const import DOMAIN, HERSTELLER, HINWEIS_ABLAUF, HINWEIS_ABO, HINWEIS_FUNKTIONEN, HINWEIS_ZAHLUNG, KONTO_URL, VERSION
 from .coordinator import LotusConfigEntry, LotusKoordinator
 from .oauth import lotus_oauth_anmelden
 
@@ -31,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry) -> b
         lotus_oauth_anmelden(hass)
     umsetzung = await config_entry_oauth2_flow.async_get_config_entry_implementation(hass, eintrag)
     sitzung = config_entry_oauth2_flow.OAuth2Session(hass, eintrag, umsetzung)
-    koordinator = LotusKoordinator(hass, eintrag, LotusApi(sitzung))
+    koordinator = LotusKoordinator(hass, eintrag, LotusApi(sitzung, VERSION))
     await koordinator.async_config_entry_first_refresh()
     eintrag.runtime_data = koordinator
     geraete = dr.async_get(hass)
