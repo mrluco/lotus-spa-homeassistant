@@ -1,0 +1,98 @@
+{
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Choose sign-in"
+      },
+      "reauth_confirm": {
+        "title": "Connect to Lotus again",
+        "description": "The connection to your Lotus account is no longer valid, for example because you disconnected it in the app. Simply sign in again."
+      }
+    },
+    "abort": {
+      "already_configured": "This Lotus account is already connected.",
+      "abo_noetig": "Home Assistant is part of the Lotus subscription. With a valid subscription you can connect your spa here.",
+      "nicht_erreichbar": "Lotus cannot be reached right now. Please try again in a moment.",
+      "anderes_konto": "Please sign in with the same Lotus account you used during setup.",
+      "reauth_successful": "Connection renewed.",
+      "missing_configuration": "The Lotus sign-in is not ready. Please restart Home Assistant."
+    },
+    "create_entry": {
+      "default": "Your spa is now connected to Home Assistant."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "filter": {
+        "name": "Filter"
+      },
+      "verbindung": {
+        "name": "Connection"
+      }
+    },
+    "select": {
+      "heizmodus": {
+        "name": "Heating mode"
+      },
+      "pflegelauf": {
+        "name": "Care run",
+        "state": {
+          "aus": "Off",
+          "ph_plus": "pH plus",
+          "ph_minus": "pH minus",
+          "chlor": "Chlorine/SWT",
+          "sonst": "Other"
+        },
+        "state_attributes": {
+          "restminuten": {
+            "name": "Minutes left"
+          }
+        }
+      }
+    },
+    "switch": {
+      "badeerkennung": {
+        "name": "Bathing detection {geraet}"
+      }
+    }
+  },
+  "exceptions": {
+    "anmeldung_abgelaufen": {
+      "message": "The connection to your Lotus account is no longer valid. Please sign in again."
+    },
+    "abo_noetig": {
+      "message": "Home Assistant is part of the Lotus subscription. With a valid subscription your values and switches are back right away."
+    },
+    "kein_recht": {
+      "message": "This is not enabled for your account in the Lotus app."
+    },
+    "nicht_gefunden": {
+      "message": "This spa is no longer part of your Lotus account."
+    },
+    "zu_oft": {
+      "message": "Several commands arrived in quick succession. Please wait a moment."
+    },
+    "abgelehnt": {
+      "message": "That did not work just now: {grund}"
+    },
+    "nicht_erreichbar": {
+      "message": "Lotus cannot be reached right now."
+    },
+    "nur_heizen": {
+      "message": "Your spa always keeps the water warm. Set your preferred temperature with the target temperature."
+    },
+    "unbekannte_stufe": {
+      "message": "This option is not available here: {stufe}"
+    }
+  },
+  "issues": {
+    "abo_noetig": {
+      "title": "Lotus subscription for Home Assistant",
+      "description": "Home Assistant is part of the Lotus subscription. While no subscription is active, Home Assistant shows your spa as unavailable and your automations do not switch anything. With a valid subscription everything continues right away."
+    },
+    "kein_recht": {
+      "title": "Home Assistant not enabled",
+      "description": "Home Assistant is not enabled for this Lotus account. Until then, Home Assistant shows your spa as unavailable."
+    }
+  }
+}
