@@ -1,0 +1,72 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "heizung": {
+        "default": "mdi:radiator"
+      },
+      "meldung": {
+        "default": "mdi:message-alert-outline"
+      },
+      "umwaelzpumpe": {
+        "default": "mdi:pump"
+      },
+      "ozon": {
+        "default": "mdi:molecule"
+      },
+      "feinspuelung": {
+        "default": "mdi:water-sync"
+      },
+      "abdeckung": {
+        "default": "mdi:hot-tub"
+      },
+      "sparmodus": {
+        "default": "mdi:leaf"
+      },
+      "frostschutz": {
+        "default": "mdi:snowflake-thermometer"
+      },
+      "urlaubsmodus": {
+        "default": "mdi:bag-suitcase"
+      },
+      "filter": {
+        "default": "mdi:air-filter"
+      }
+    },
+    "sensor": {
+      "wassertemperatur": {
+        "default": "mdi:thermometer-water"
+      },
+      "solltemperatur": {
+        "default": "mdi:thermometer-check"
+      },
+      "meldungstext": {
+        "default": "mdi:message-text-outline"
+      },
+      "solarenergie": {
+        "default": "mdi:solar-power"
+      },
+      "absenkung": {
+        "default": "mdi:thermometer-chevron-down"
+      },
+      "filterung": {
+        "default": "mdi:air-filter"
+      },
+      "heizmodus": {
+        "default": "mdi:tune-variant"
+      }
+    },
+    "select": {
+      "heizmodus": {
+        "default": "mdi:tune-variant"
+      },
+      "pflegelauf": {
+        "default": "mdi:flask-outline"
+      }
+    },
+    "switch": {
+      "badeerkennung": {
+        "default": "mdi:account-check-outline"
+      }
+    }
+  }
+}

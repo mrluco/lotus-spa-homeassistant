@@ -7,7 +7,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import LotusAboNoetig, LotusAnmeldungAbgelaufen, LotusFehler, LotusKeinRecht, LotusNichtGefunden, LotusZuOft
-from .const import BASIS_URL, DOMAIN
+from .const import BASIS_URL, DOMAIN, HERSTELLER, VERSION
 from .coordinator import LotusKoordinator
 
 
@@ -23,9 +23,14 @@ class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, geraet)},
             name=str(self.daten.get("name") or "Spa"),
-            manufacturer="Lotus Spa",
+            manufacturer=HERSTELLER,
+            model=str(self.daten.get("modell") or "Spa"),
+            sw_version=VERSION,
             configuration_url=f"{BASIS_URL}/a/{anlage}/{spa}/",
         )
+
+    def zustand(self, titel: str) -> dict[str, Any]:
+        return next((z_ for z_ in (self.daten.get("zustaende") or []) if isinstance(z_, dict) and z_.get("titel") == titel), {})
 
     @property
     def daten(self) -> dict[str, Any]:

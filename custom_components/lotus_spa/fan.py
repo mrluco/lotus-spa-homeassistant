@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import LotusConfigEntry
-from .schalter import art, ist_an, schalter_liste, stufen
+from .schalter import art, darf, ist_an, schalter_liste, stufen
 from .switch import LotusSchaltbar
 
 PARALLEL_UPDATES = 1
@@ -18,7 +18,7 @@ PARALLEL_UPDATES = 1
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
     koordinator = eintrag.runtime_data
     hinzufuegen(LotusPumpe(koordinator, g_, s_["titel"]) for g_, daten in koordinator.data.items()
-                for s_ in schalter_liste(daten) if art(s_) == "luefter")
+                for s_ in schalter_liste(daten) if art(s_) == "luefter" and darf(s_))
 
 
 class LotusPumpe(LotusSchaltbar, FanEntity):

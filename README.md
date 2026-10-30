@@ -28,8 +28,12 @@ Verbinde deinen Spa aus der Lotus-App mit Home Assistant. Dort siehst du die Was
 | Badeerkennung | welche Geräte als „Baden“ zählen |
 | Filter | ob die Filterung gerade läuft |
 | Verbindung | ob dein Spa mit Lotus verbunden ist |
+| Wassertemperatur, Solltemperatur | als Sensoren, auch für Verlauf und Statistik |
+| Heizung, Umwälzpumpe, Ozon, Feinspülung, Abdeckung, Sparmodus, Frostschutz, Urlaubsmodus | Zustand wie in der App, soweit deine Steuerung ihn meldet |
+| Solarenergie, Absenkung, Filterung | der Satz aus der App |
+| Meldung | ob dein Spa gerade etwas meldet, mit demselben Text wie in der App |
 
-Du siehst nur, was du auch in der App bedienen darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
+Was du in der App nur ansehen kannst, erscheint in Home Assistant als Anzeige. Schalten kannst du dort nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
 
 ## Wenn das Abo endet
 

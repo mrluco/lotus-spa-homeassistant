@@ -17,7 +17,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
     koordinator = eintrag.runtime_data
     neu: list[SelectEntity] = []
     for g_, daten in koordinator.data.items():
-        if daten.get("heizmodus"):
+        if (daten.get("heizmodus") or {}).get("darf"):
             neu.append(LotusHeizmodus(koordinator, g_))
         if daten.get("pflegelauf"):
             neu.append(LotusPflegelauf(koordinator, g_))

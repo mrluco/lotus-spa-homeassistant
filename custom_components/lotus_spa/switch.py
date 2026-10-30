@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import LotusConfigEntry, LotusKoordinator
 from .entity import LotusEntitaet
-from .schalter import AUS, art, erste_stufe, ist_an, schalter_liste
+from .schalter import AUS, art, darf, erste_stufe, ist_an, schalter_liste
 
 PARALLEL_UPDATES = 1
 
@@ -18,7 +18,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
     koordinator = eintrag.runtime_data
     neu: list[SwitchEntity] = []
     for g_, daten in koordinator.data.items():
-        neu += [LotusSchalter(koordinator, g_, s_["titel"]) for s_ in schalter_liste(daten) if art(s_) == "schalter"]
+        neu += [LotusSchalter(koordinator, g_, s_["titel"]) for s_ in schalter_liste(daten) if art(s_) == "schalter" and darf(s_)]
         neu += [LotusBadeerkennung(koordinator, g_, str(b_)) for b_ in ((daten.get("badeerkennung") or {}).get("geraete") or [])]
     hinzufuegen(neu)
 

@@ -28,6 +28,73 @@
       },
       "verbindung": {
         "name": "Verbindung"
+      },
+      "heizung": {
+        "name": "Heizung"
+      },
+      "meldung": {
+        "name": "Meldung",
+        "state_attributes": {
+          "meldungen": {
+            "name": "Meldungen"
+          }
+        }
+      },
+      "umwaelzpumpe": {
+        "name": "Umwälzpumpe",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "ozon": {
+        "name": "Ozon",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "feinspuelung": {
+        "name": "Feinspülung",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "abdeckung": {
+        "name": "Abdeckung",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "sparmodus": {
+        "name": "Sparmodus",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "frostschutz": {
+        "name": "Frostschutz",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "urlaubsmodus": {
+        "name": "Urlaubsmodus",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
       }
     },
     "select": {
@@ -53,6 +120,29 @@
     "switch": {
       "badeerkennung": {
         "name": "Badeerkennung {geraet}"
+      }
+    },
+    "sensor": {
+      "wassertemperatur": {
+        "name": "Wassertemperatur"
+      },
+      "solltemperatur": {
+        "name": "Solltemperatur"
+      },
+      "meldungstext": {
+        "name": "Meldungstext"
+      },
+      "solarenergie": {
+        "name": "Solarenergie"
+      },
+      "absenkung": {
+        "name": "Absenkung"
+      },
+      "filterung": {
+        "name": "Filterung"
+      },
+      "heizmodus": {
+        "name": "Heizmodus"
       }
     }
   },

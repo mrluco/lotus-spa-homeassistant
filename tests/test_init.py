@@ -16,8 +16,15 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.lotus_spa.const import API_URL, DOMAIN, HINWEIS_ABO
 from custom_components.lotus_spa.diagnostics import async_get_config_entry_diagnostics
 
-from .conftest import GERAET, stand_beispiel
+from .conftest import GERAET, ohne_recht, stand_beispiel
 
+GRUND = {
+    "climate.mein_spa", "select.mein_spa_pflegelauf", "binary_sensor.mein_spa_filter", "binary_sensor.mein_spa_verbindung",
+    "switch.mein_spa_badeerkennung_pumpe_1", "switch.mein_spa_badeerkennung_pumpe_2", "binary_sensor.mein_spa_heizung",
+    "binary_sensor.mein_spa_meldung", "binary_sensor.mein_spa_umwalzpumpe", "binary_sensor.mein_spa_ozon", "binary_sensor.mein_spa_abdeckung",
+    "sensor.mein_spa_wassertemperatur", "sensor.mein_spa_solltemperatur", "sensor.mein_spa_meldungstext", "sensor.mein_spa_solarenergie",
+    "sensor.mein_spa_filterung",
+}
 STAND = f"{API_URL}/stand"
 BEFEHL = f"{API_URL}/befehl"
 
@@ -55,11 +62,7 @@ async def test_entitaeten(hass: HomeAssistant, eintrag: MockConfigEntry, aioclie
     assert hass.states.get("switch.mein_spa_badeerkennung_pumpe_1").state == STATE_ON
     assert hass.states.get("switch.mein_spa_badeerkennung_pumpe_2").state == STATE_OFF
     alle = {s_.entity_id for s_ in hass.states.async_all()}
-    assert alle == {
-        "climate.mein_spa", "fan.mein_spa_pumpe_1", "switch.mein_spa_pumpe_2", "light.mein_spa_licht", "select.mein_spa_heizmodus",
-        "select.mein_spa_pflegelauf", "binary_sensor.mein_spa_filter", "binary_sensor.mein_spa_verbindung",
-        "switch.mein_spa_badeerkennung_pumpe_1", "switch.mein_spa_badeerkennung_pumpe_2",
-    }
+    assert alle == GRUND | {"fan.mein_spa_pumpe_1", "switch.mein_spa_pumpe_2", "light.mein_spa_licht", "select.mein_spa_heizmodus"}
     assert _befehle(aioclient_mock) == [] and all(c_[0] == "GET" for c_ in aioclient_mock.mock_calls)
 
 
@@ -107,8 +110,78 @@ async def test_ohne_recht_temperatur_nur_anzeigen(hass: HomeAssistant, eintrag: 
 async def test_ohne_schaltrecht_keine_schalter(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(schalter=[], heizmodus=None, pflegelauf=None, badeerkennung=None))
     alle = {s_.entity_id for s_ in hass.states.async_all()}
-    assert "climate.mein_spa" in alle and "binary_sensor.mein_spa_verbindung" in alle
+    assert "climate.mein_spa" in alle and "binary_sensor.mein_spa_verbindung" in alle and "sensor.mein_spa_wassertemperatur" in alle
     assert not any(e_.split(".")[0] in ("fan", "switch", "light", "select") for e_ in alle), alle
+
+
+async def test_lesewerte(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock)
+    wasser = hass.states.get("sensor.mein_spa_wassertemperatur")
+    assert wasser.state == "37.5" and wasser.attributes["state_class"] == "measurement" and wasser.attributes["unit_of_measurement"] == "°C"
+    assert hass.states.get("sensor.mein_spa_solltemperatur").state == "38.0"
+    assert hass.states.get("binary_sensor.mein_spa_heizung").state == STATE_ON
+    assert hass.states.get("binary_sensor.mein_spa_umwalzpumpe").state == STATE_ON
+    assert hass.states.get("binary_sensor.mein_spa_ozon").state == STATE_OFF
+    assert hass.states.get("binary_sensor.mein_spa_abdeckung").attributes["text"] == "zu"
+    assert hass.states.get("sensor.mein_spa_solarenergie").state == "gehalten auf 38,0 · ab 15:00 mit Sonne"
+    assert hass.states.get("sensor.mein_spa_filterung").state == "läuft bis 11:00"
+    assert hass.states.get("binary_sensor.mein_spa_meldung").state == STATE_OFF
+    assert hass.states.get("sensor.mein_spa_meldungstext").state == "-"
+
+
+async def test_meldung_mit_kundentext(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(meldungen=["Bitte den Filter reinigen."]))
+    meldung = hass.states.get("binary_sensor.mein_spa_meldung")
+    assert meldung.state == STATE_ON and meldung.attributes["meldungen"] == ["Bitte den Filter reinigen."]
+    assert hass.states.get("sensor.mein_spa_meldungstext").state == "Bitte den Filter reinigen."
+
+
+async def test_ohne_schaltrecht_nur_anzeige(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, ohne_recht(stand_beispiel()))
+    alle = {s_.entity_id for s_ in hass.states.async_all()}
+    assert alle == GRUND | {
+        "binary_sensor.mein_spa_pumpe_1", "binary_sensor.mein_spa_pumpe_2", "binary_sensor.mein_spa_licht", "sensor.mein_spa_heizmodus",
+    }
+    assert not any(e_.split(".")[0] in ("fan", "light") for e_ in alle)
+    assert not any(e_.startswith("switch.") and "badeerkennung" not in e_ for e_ in alle)
+    assert hass.states.get("binary_sensor.mein_spa_pumpe_2").state == STATE_ON
+    assert hass.states.get("binary_sensor.mein_spa_pumpe_1").state == STATE_OFF
+    assert hass.states.get("sensor.mein_spa_heizmodus").state == "Standard"
+    assert hass.states.get("climate.mein_spa").attributes["supported_features"] == 0
+    for dienst, daten in (("fan", {"entity_id": "fan.mein_spa_pumpe_1"}), ("light", {"entity_id": "light.mein_spa_licht"}),
+                          ("switch", {"entity_id": "switch.mein_spa_pumpe_2"})):
+        await hass.services.async_call(dienst, "turn_on", daten, blocking=True)
+    with pytest.raises(HomeAssistantError):
+        await hass.services.async_call("climate", "set_temperature", {"entity_id": "climate.mein_spa", "temperature": 36}, blocking=True)
+    assert _befehle(aioclient_mock) == []
+
+
+async def test_stufe_ohne_recht(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    stand = ohne_recht(stand_beispiel())
+    stand["geraete"][GERAET]["schalter"][0]["aktiv"] = "HI"
+    await _einrichten(hass, eintrag, aioclient_mock, stand)
+    pumpe = hass.states.get("binary_sensor.mein_spa_pumpe_1")
+    assert pumpe.state == STATE_ON and pumpe.attributes["stufe"] == "Stufe 2"
+
+
+async def test_keine_elektrik(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    stand = stand_beispiel()
+    stand["geraete"][GERAET]["zustaende"] += [{"titel": "Leistung", "name": "Leistung", "text": "3,2 kW", "an": True},
+                                               {"titel": "Nennstrom", "name": "Nennstrom", "text": "16 A", "an": True}]
+    await _einrichten(hass, eintrag, aioclient_mock, stand)
+    alle = {s_.entity_id for s_ in hass.states.async_all()}
+    assert alle == GRUND | {"fan.mein_spa_pumpe_1", "switch.mein_spa_pumpe_2", "light.mein_spa_licht", "select.mein_spa_heizmodus"}
+
+
+async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    from homeassistant.helpers import device_registry as dr
+
+    from custom_components.lotus_spa.const import VERSION
+
+    await _einrichten(hass, eintrag, aioclient_mock)
+    geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION == "0.2.0"
+    assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
 async def test_badeerkennung_name(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

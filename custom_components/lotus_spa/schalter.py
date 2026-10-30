@@ -23,6 +23,15 @@ def ist_an(schalter: dict[str, Any]) -> bool:
     return str(schalter.get("aktiv") or AUS).upper() != AUS
 
 
+def darf(schalter: dict[str, Any]) -> bool:
+    return bool(schalter.get("darf"))
+
+
+def stufe_text(schalter: dict[str, Any]) -> str | None:
+    aktiv = str(schalter.get("aktiv") or AUS).upper()
+    return next((str(m_.get("text") or m_.get("wert")) for m_ in stufen(schalter) if str(m_.get("wert")).upper() == aktiv), None)
+
+
 def erste_stufe(schalter: dict[str, Any]) -> str:
     s_ = stufen(schalter)
     return str(s_[0]["wert"]) if s_ else "ON"

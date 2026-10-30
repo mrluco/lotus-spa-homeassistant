@@ -29,21 +29,43 @@ def stand_beispiel(**aenderung: Any) -> dict[str, Any]:
         "heizt": True,
         "soll_bereich": [10.0, 40.0],
         "darf_temperatur": True,
+        "darf_schalten": True,
+        "modell": "Whirlpool",
         "schalter": [
             {"titel": "Pumpe 1", "name": "Pumpe 1", "art": "geraet", "modi": [{"wert": "LO", "text": "Stufe 1"}, {"wert": "HI", "text": "Stufe 2"}],
-             "aktiv": "OFF", "laeuft": False},
-            {"titel": "Pumpe 2", "name": "Pumpe 2", "art": "geraet", "modi": [{"wert": "ON", "text": "Ein"}], "aktiv": "ON", "laeuft": True},
-            {"titel": "Licht", "name": "Licht", "art": "licht", "modi": [{"wert": "ON", "text": "Ein"}], "aktiv": "OFF", "laeuft": False},
+             "aktiv": "OFF", "laeuft": False, "darf": True},
+            {"titel": "Pumpe 2", "name": "Pumpe 2", "art": "geraet", "modi": [{"wert": "ON", "text": "Ein"}], "aktiv": "ON", "laeuft": True,
+             "darf": True},
+            {"titel": "Licht", "name": "Licht", "art": "licht", "modi": [{"wert": "ON", "text": "Ein"}], "aktiv": "OFF", "laeuft": False,
+             "darf": True},
         ],
-        "heizmodus": {"aktiv": "standard", "modi": [{"wert": "standard", "text": "Standard"}, {"wert": "sparen", "text": "Energiesparen"}]},
+        "heizmodus": {"aktiv": "standard", "modi": [{"wert": "standard", "text": "Standard"}, {"wert": "sparen", "text": "Energiesparen"}],
+                      "darf": True},
         "filter_laeuft": True,
         "pflegelauf": {"laeuft": False, "zweck": "", "rest_min": 0,
                        "zwecke": [{"wert": "ph_plus", "text": "pH plus"}, {"wert": "ph_minus", "text": "pH minus"},
                                   {"wert": "chlor", "text": "Chlor/SWT"}, {"wert": "sonst", "text": "Sonstiges"}]},
         "badeerkennung": {"geraete": ["Pumpe 1", "Pumpe 2"], "gewaehlt": ["Pumpe 1"]},
+        "zustaende": [
+            {"titel": "Umwälzpumpe", "name": "Umwälzpumpe", "text": "läuft", "an": True},
+            {"titel": "Ozon", "name": "Ozon", "text": "aus", "an": False},
+            {"titel": "Abdeckung", "name": "Abdeckung", "text": "zu", "an": False},
+            {"titel": "Solarenergie", "name": "Solarenergie", "text": "gehalten auf 38,0 · ab 15:00 mit Sonne", "an": True},
+            {"titel": "Filterung", "name": "Filterung", "text": "läuft bis 11:00", "an": True},
+        ],
+        "meldungen": [],
     }
     geraet.update(aenderung)
     return {"ok": True, "zeit": int(time.time()), "geraete": {GERAET: geraet}}
+
+
+def ohne_recht(stand: dict[str, Any]) -> dict[str, Any]:
+    geraet = stand["geraete"][GERAET]
+    geraet["darf_schalten"] = False
+    geraet["darf_temperatur"] = False
+    geraet["schalter"] = [dict(s_, darf=False) for s_ in geraet["schalter"]]
+    geraet["heizmodus"] = dict(geraet["heizmodus"], darf=False)
+    return stand
 
 
 @pytest.fixture

@@ -28,6 +28,73 @@
       },
       "verbindung": {
         "name": "Connection"
+      },
+      "heizung": {
+        "name": "Heating"
+      },
+      "meldung": {
+        "name": "Notice",
+        "state_attributes": {
+          "meldungen": {
+            "name": "Notices"
+          }
+        }
+      },
+      "umwaelzpumpe": {
+        "name": "Circulation pump",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "ozon": {
+        "name": "Ozone",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "feinspuelung": {
+        "name": "Purge",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "abdeckung": {
+        "name": "Cover",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "sparmodus": {
+        "name": "Economy mode",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "frostschutz": {
+        "name": "Frost protection",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
+      },
+      "urlaubsmodus": {
+        "name": "Holiday mode",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
       }
     },
     "select": {
@@ -53,6 +120,29 @@
     "switch": {
       "badeerkennung": {
         "name": "Bathing detection {geraet}"
+      }
+    },
+    "sensor": {
+      "wassertemperatur": {
+        "name": "Water temperature"
+      },
+      "solltemperatur": {
+        "name": "Target temperature"
+      },
+      "meldungstext": {
+        "name": "Notice text"
+      },
+      "solarenergie": {
+        "name": "Solar energy"
+      },
+      "absenkung": {
+        "name": "Setback"
+      },
+      "filterung": {
+        "name": "Filtration"
+      },
+      "heizmodus": {
+        "name": "Heating mode"
       }
     }
   },
