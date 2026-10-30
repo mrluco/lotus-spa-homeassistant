@@ -1,6 +1,10 @@
 {
   "config": {
     "step": {
+      "auth": {
+        "title": "Sign in with Lotus",
+        "description": "No Lotus account yet? Take a look at the live demo: https://app.lotusswimspa.de/demo"
+      },
       "pick_implementation": {
         "title": "Choose sign-in"
       },
@@ -11,7 +15,7 @@
     },
     "abort": {
       "already_configured": "This Lotus account is already connected.",
-      "abo_noetig": "Home Assistant is part of the Lotus subscription. With a valid subscription you can connect your spa here.",
+      "abo_noetig": "Home Assistant is part of the Lotus subscription. With a valid subscription you can connect your spa here. Subscription: https://app.lotusswimspa.de/abo",
       "nicht_erreichbar": "Lotus cannot be reached right now. Please try again in a moment.",
       "anderes_konto": "Please sign in with the same Lotus account you used during setup.",
       "reauth_successful": "Connection renewed.",
@@ -24,7 +28,12 @@
   "entity": {
     "binary_sensor": {
       "filter": {
-        "name": "Filter"
+        "name": "Filtration",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          }
+        }
       },
       "verbindung": {
         "name": "Connection"
@@ -95,6 +104,12 @@
             "name": "Text"
           }
         }
+      },
+      "wartung_faellig": {
+        "name": "{titel} due"
+      },
+      "box_verbindung": {
+        "name": "Connection"
       }
     },
     "select": {
@@ -115,11 +130,47 @@
             "name": "Minutes left"
           }
         }
+      },
+      "solar_betriebsart": {
+        "name": "Solar mode",
+        "state": {
+          "aus": "Without solar",
+          "beobachten": "Only calculate",
+          "zeitplan": "Schedule leads",
+          "temperatur": "Solar leads"
+        }
+      },
+      "pflegelauf_dauer": {
+        "name": "Care run duration",
+        "state": {
+          "10": "10 min",
+          "20": "20 min",
+          "30": "30 min",
+          "45": "45 min",
+          "60": "60 min"
+        }
+      },
+      "absenkung": {
+        "name": "Setback",
+        "state": {
+          "aus": "Off",
+          "an": "On",
+          "auto": "Automatic"
+        }
       }
     },
     "switch": {
       "badeerkennung": {
         "name": "Bathing detection {geraet}"
+      },
+      "wartungspause": {
+        "name": "Maintenance pause"
+      },
+      "urlaubsmodus": {
+        "name": "Vacation mode"
+      },
+      "abendlicht": {
+        "name": "Evening light"
       }
     },
     "sensor": {
@@ -138,11 +189,148 @@
       "absenkung": {
         "name": "Setback"
       },
-      "filterung": {
-        "name": "Filtration"
-      },
       "heizmodus": {
         "name": "Heating mode"
+      },
+      "solar_betriebsart": {
+        "name": "Solar mode",
+        "state": {
+          "aus": "Without solar",
+          "beobachten": "Only calculate",
+          "zeitplan": "Schedule leads",
+          "temperatur": "Solar leads"
+        }
+      },
+      "soll_grund": {
+        "name": "Reason for target temperature"
+      },
+      "filterblock": {
+        "name": "Filter block",
+        "state_attributes": {
+          "bloecke": {
+            "name": "Filter runs today"
+          },
+          "hinweis": {
+            "name": "Note"
+          }
+        }
+      },
+      "badezeit_beginn": {
+        "name": "Next bathing time start"
+      },
+      "badezeit_ende": {
+        "name": "Next bathing time end"
+      },
+      "wartung": {
+        "name": "{titel}",
+        "state_attributes": {
+          "tage_uebrig": {
+            "name": "Days left"
+          },
+          "text": {
+            "name": "Text"
+          },
+          "vorwarnung": {
+            "name": "Due soon"
+          }
+        }
+      },
+      "pflegelauf_ende": {
+        "name": "Care run ends"
+      },
+      "wartungspause_ende": {
+        "name": "Maintenance pause ends"
+      },
+      "aussen": {
+        "name": "Outdoor temperature"
+      },
+      "warm_um": {
+        "name": "Warm at"
+      },
+      "energie": {
+        "name": "Energy (estimated)"
+      },
+      "leistung": {
+        "name": "Power (estimated)"
+      },
+      "kosten_heute": {
+        "name": "Cost today"
+      },
+      "empfang": {
+        "name": "Wi-Fi reception",
+        "state": {
+          "sehr_gut": "very good",
+          "gut": "good",
+          "schwach": "weak",
+          "sehr_schwach": "very weak"
+        }
+      },
+      "signal": {
+        "name": "Wi-Fi signal"
+      },
+      "netz": {
+        "name": "Wi-Fi"
+      },
+      "box_start": {
+        "name": "Box started"
+      },
+      "abo": {
+        "name": "Subscription",
+        "state": {
+          "abo": "With subscription",
+          "ohne_abo": "Without subscription"
+        }
+      },
+      "abo_bis": {
+        "name": "Subscription valid until"
+      }
+    },
+    "time": {
+      "badezeit_von": {
+        "name": "Bathing time {tage} {nr} start"
+      },
+      "badezeit_bis": {
+        "name": "Bathing time {tage} {nr} end"
+      },
+      "filterzeit_von": {
+        "name": "Filter time {nr} start"
+      },
+      "filterzeit_bis": {
+        "name": "Filter time {nr} end"
+      }
+    },
+    "button": {
+      "wartung_erledigt": {
+        "name": "{titel} done"
+      }
+    },
+    "climate": {
+      "thermostat": {
+        "state": {
+          "heat": "Lotus controls"
+        },
+        "state_attributes": {
+          "hvac_action": {
+            "state": {
+              "heating": "Heating",
+              "idle": "Holding temperature"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "volumen": {
+        "name": "Pool volume"
+      },
+      "strompreis": {
+        "name": "Electricity price"
+      },
+      "urlaub_ziel": {
+        "name": "Vacation temperature"
+      },
+      "absenkung": {
+        "name": "Setback"
       }
     }
   },
@@ -173,6 +361,9 @@
     },
     "unbekannte_stufe": {
       "message": "This option is not available here: {stufe}"
+    },
+    "plan_grenze": {
+      "message": "The plan has already been changed four times from Home Assistant today. It works again tomorrow, and in the app at any time."
     }
   },
   "issues": {
@@ -183,6 +374,18 @@
     "kein_recht": {
       "title": "Home Assistant not enabled",
       "description": "Home Assistant is not enabled for this Lotus account. Until then, Home Assistant shows your spa as unavailable."
+    },
+    "abo_ablauf": {
+      "title": "Your Lotus subscription ends soon",
+      "description": "Your subscription is valid until {bis}. Extend it in Lotus in good time and your spa stays in Home Assistant without interruption."
+    },
+    "zahlung": {
+      "title": "Payment for your Lotus subscription is open",
+      "description": "The last payment has not arrived yet. Please take a quick look at My subscription in Lotus and everything continues as usual."
+    },
+    "abo_funktionen": {
+      "title": "More with the subscription",
+      "description": "With the Lotus subscription, Home Assistant also gives you: {funktionen}. Your subscription is under Learn more."
     }
   }
 }

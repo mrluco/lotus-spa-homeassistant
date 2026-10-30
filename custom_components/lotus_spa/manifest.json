@@ -1,6 +1,7 @@
 {
   "domain": "lotus_spa",
   "name": "Lotus Spa",
+  "categories": ["water.pools_spas"],
   "codeowners": ["@mrluco"],
   "config_flow": true,
   "dependencies": ["my"],
@@ -9,5 +10,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/mrluco/lotus-spa-homeassistant/issues",
   "requirements": [],
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

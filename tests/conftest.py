@@ -42,7 +42,7 @@ def stand_beispiel(**aenderung: Any) -> dict[str, Any]:
         "heizmodus": {"aktiv": "standard", "modi": [{"wert": "standard", "text": "Standard"}, {"wert": "sparen", "text": "Energiesparen"}],
                       "darf": True},
         "filter_laeuft": True,
-        "pflegelauf": {"laeuft": False, "zweck": "", "rest_min": 0,
+        "pflegelauf": {"laeuft": False, "zweck": "", "rest_min": 0, "dauer": 20, "dauern": [10, 20, 30, 45, 60], "bis": None,
                        "zwecke": [{"wert": "ph_plus", "text": "pH plus"}, {"wert": "ph_minus", "text": "pH minus"},
                                   {"wert": "chlor", "text": "Chlor/SWT"}, {"wert": "sonst", "text": "Sonstiges"}]},
         "badeerkennung": {"geraete": ["Pumpe 1", "Pumpe 2"], "gewaehlt": ["Pumpe 1"]},
@@ -54,9 +54,39 @@ def stand_beispiel(**aenderung: Any) -> dict[str, Any]:
             {"titel": "Filterung", "name": "Filterung", "text": "läuft bis 11:00", "an": True},
         ],
         "meldungen": [],
+        "soll_grund": "Badezeit — gehalten auf 38,0 °C.",
+        "filter_bloecke": ["08:00–12:00", "20:00–22:00"],
+        "filter_aktiv": "08:00–12:00",
+        "naechste_badezeit": None,
+        "solar": None,
+        "badezeiten": None,
+        "filterzeiten": None,
+        "wartung": {"darf": False, "aufgaben": []},
+        "wartungspause": None,
+        "aussen": 12.5,
+        "box": None,
+        "energie": None,
+        "warm_um": None,
+        "volumen": None,
+        "strompreis": None,
+        "urlaub": None,
+        "absenkung": None,
+        "abendlicht": None,
     }
+    konto = aenderung.pop("konto", None)
     geraet.update(aenderung)
-    return {"ok": True, "zeit": int(time.time()), "geraete": {GERAET: geraet}}
+    return {"ok": True, "zeit": int(time.time()), "geraete": {GERAET: geraet}, "konto": konto}
+
+
+def mit_plan(**aenderung: Any) -> dict[str, Any]:
+    plan: dict[str, Any] = {
+        "naechste_badezeit": {"beginn": "2026-10-30T18:00:00+01:00", "ende": "2026-10-30T21:00:00+01:00"},
+        "solar": {"modus": "aus", "modi": [{"wert": "aus", "text": "Ohne Solar"}, {"wert": "zeitplan", "text": "Zeitplan führt"},
+                                           {"wert": "temperatur", "text": "Solar führt"}], "darf": True},
+        "badezeiten": {"art": "gleich", "gruppen": [{"nr": 0, "name": "alle", "bloecke": [{"von": "18:00", "bis": "21:00"}]}], "darf": True},
+    }
+    plan.update(aenderung)
+    return stand_beispiel(**plan)
 
 
 def ohne_recht(stand: dict[str, Any]) -> dict[str, Any]:

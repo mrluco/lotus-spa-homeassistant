@@ -1,61 +1,114 @@
-# Lotus Spa für Home Assistant
+<p align="center"><img src="bilder/logo.png" alt="Lotus" width="120"></p>
 
-Verbinde deinen Spa aus der Lotus-App mit Home Assistant. Dort siehst du die Wassertemperatur, stellst die Wunschtemperatur ein und schaltest Pumpen und Licht, mit denselben Rechten wie in der App.
+<h1 align="center">Lotus Spa für Home Assistant</h1>
+
+<p align="center">Dein Spa aus der Lotus-App in Home Assistant, mit denselben Rechten wie in der App.</p>
+
+<p align="center">
+<a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS Custom"></a>
+<a href="https://github.com/mrluco/lotus-spa-homeassistant/releases"><img src="https://img.shields.io/github/v/release/mrluco/lotus-spa-homeassistant" alt="Release"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="Lizenz"></a>
+</p>
+
+<p align="center">
+<a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=mrluco&repository=lotus-spa-homeassistant&category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store."></a>
+<a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=lotus_spa"><img src="https://my.home-assistant.io/badges/config_flow_start.svg" alt="Open your Home Assistant instance and start setting up a new integration."></a>
+</p>
+
+<p align="center"><b>Deutsch</b> · <a href="README.en.md">English</a></p>
+
+## Was du bekommst
+
+- **Bedienen:** Wunschtemperatur, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
+- **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm um“ beim Aufheizen.
+- **Planen:** Badezeiten, Filterzeiten und Solar-Betriebsart. Eine Änderung in Home Assistant ist dieselbe wie in der App.
+- **Pflegen:** Pflegelauf mit Dauer, Wartungspause, Wartungsaufgaben mit Termin und Knopf „erledigt“.
+- **Verbrauch:** Energie für das Energie-Dashboard, Leistung und Kosten von heute. Beckeninhalt und Strompreis kannst du hier ändern.
+- **Lotus Box und Konto:** Verbindung und WLAN-Empfang der Box, dein Abo und bis wann es gilt.
+
+Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
+
+<details>
+<summary>Alle Entitäten im Einzelnen</summary>
+
+| Entität | Was sie zeigt oder tut |
+|---|---|
+| Thermostat (heißt wie dein Spa) | Wassertemperatur, Wunschtemperatur, ob gerade geheizt wird |
+| Pumpen und Blower | an und aus; eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“ an (Einschalten = erste Stufe) |
+| Licht | an und aus |
+| Heizmodus | die Modi deiner Steuerung, wie in der App; auch am Thermostat als Voreinstellung |
+| Pflegelauf | starten (pH plus, pH minus, Chlor/SWT, Sonstiges) und beenden; dazu „Pflegelauf Dauer“ für den nächsten Lauf und „Pflegelauf endet“ |
+| Wartungspause | anhalten und wieder starten wie in der App, mit „Wartungspause endet“; bei Frostgefahr startet sie nicht, der Frostschutz hat Vorrang |
+| Urlaubsmodus, Urlaubstemperatur | ein- und ausschalten und die Temperatur im Urlaub, wie die Kachel der App |
+| Absenkung | Aus, An oder Automatisch und um wie viel Grad; im Urlaub gilt die Urlaubstemperatur |
+| Abendlicht | Licht geht bei einem Bad nach Sonnenuntergang von selbst an, wenn dein Spa Licht hat |
+| Badeerkennung | welche Geräte als „Baden“ zählen |
+| Filterung | ob die Filterung gerade läuft, dazu der Satz aus der App |
+| Verbindung | ob dein Spa mit Lotus verbunden ist |
+| Wassertemperatur, Solltemperatur | als Sensoren, auch für Verlauf und Statistik |
+| Heizung, Umwälzpumpe, Ozon, Feinspülung, Abdeckung, Sparmodus, Frostschutz, Urlaubsmodus | Zustand wie in der App, soweit deine Steuerung ihn meldet |
+| Solarenergie, Absenkung | der Satz aus der App |
+| Meldung, Meldungstext | ob dein Spa gerade etwas meldet, mit demselben Text wie in der App („Keine Meldung“, wenn alles in Ordnung ist) |
+| Badezeiten | Beginn und Ende deiner Badezeiten, änderbar wie in der App |
+| Nächste Badezeit | Beginn und Ende der laufenden oder nächsten Badezeit |
+| Solar-Betriebsart | wie in der App, zum Beispiel „Solar führt“ |
+| Grund der Solltemperatur | derselbe Satz wie in der App, zum Beispiel „Badezeit, gehalten auf 38,0 °C“ |
+| Filterblock | der laufende Filterblock, dazu die Filterläufe von heute |
+| Filterzeiten | Beginn und Ende je Filterlauf; eine Änderung übernimmt Lotus zum nächsten Beginn, nie sofort. Solange „Solar führt“, nur zum Ansehen |
+| Wartung | je Aufgabe aus der App: nächster Termin, ob sie fällig ist, und ein Knopf „erledigt“ |
+| Außentemperatur | der Wert aus der App (Deutscher Wetterdienst) |
+| Warm um | wann dein Wasser warm ist, solange geheizt wird |
+| Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt, wenn deine Steuerung nicht misst) |
+| Beckeninhalt, Strompreis | ansehen und ändern wie in der App; eine Änderung gilt auch dort |
+| Lotus Box | nur wenn dein Spa über eine Lotus Box verbunden ist: Verbindung und WLAN-Empfang, dazu WLAN-Name und Signal, soweit du sie in der App siehst |
+| Lotus Konto | dein Abo und bis wann es gilt |
+
+Badezeiten, Filterzeiten und Betriebsart ändert Home Assistant höchstens viermal am Tag, in der App jederzeit. Aufgaben anlegen oder löschen geht in der App. Was du in der App nur ansehen kannst, erscheint in Home Assistant als Anzeige.
+
+</details>
 
 ## Voraussetzungen
 
-- ein Lotus-Konto mit gültigem Abo (ein laufender Testzugang zählt dazu)
+- ein Lotus-Konto mit gültigem Abo
 - Home Assistant 2026.10 oder neuer
-- „My Home Assistant“ ist eingeschaltet (Standard). Die Anmeldung kehrt über my.home-assistant.io zu deinem Home Assistant zurück.
+- „My Home Assistant“ ist eingeschaltet (Standard). Die Anmeldung kehrt darüber zu deinem Home Assistant zurück.
 
-## Installation über HACS
+## Installation
+
+Mit den beiden Knöpfen oben:
+
+1. Der erste Knopf öffnet das Repository in HACS. Auf „Herunterladen“ tippen, dann Home Assistant neu starten.
+2. Der zweite Knopf startet die Einrichtung. Auf der Lotus-Seite anmelden wie in der App und auf „Verbinden“ tippen.
+
+Ohne Knöpfe:
 
 1. HACS öffnen › „Benutzerdefinierte Repositories“ › diese Adresse eintragen, Typ „Integration“.
 2. „Lotus Spa“ installieren und Home Assistant neu starten.
 3. Einstellungen › Geräte & Dienste › „Integration hinzufügen“ › „Lotus Spa“.
 4. Die Lotus-Anmeldeseite öffnet sich. Melde dich an wie in der App und tippe auf „Verbinden“.
-5. Fertig: Jeder Spa deines Kontos erscheint als eigenes Gerät.
+5. Jeder Spa deines Kontos erscheint als eigenes Gerät.
 
-## Was du in Home Assistant bekommst
+Die Knöpfe findest du auch in der Lotus-App unter Konto › Home Assistant.
 
-| Entität | Was sie zeigt oder tut |
-|---|---|
-| Thermostat (heißt wie dein Spa) | Wassertemperatur, Wunschtemperatur, ob gerade geheizt wird |
-| Pumpen und Blower | an und aus, bei mehreren Stufen mit Stufenwahl |
-| Licht | an und aus |
-| Heizmodus | die Modi deiner Steuerung, wie in der App |
-| Pflegelauf | starten (pH plus, pH minus, Chlor/SWT, Sonstiges) und beenden |
-| Badeerkennung | welche Geräte als „Baden“ zählen |
-| Filter | ob die Filterung gerade läuft |
-| Verbindung | ob dein Spa mit Lotus verbunden ist |
-| Wassertemperatur, Solltemperatur | als Sensoren, auch für Verlauf und Statistik |
-| Heizung, Umwälzpumpe, Ozon, Feinspülung, Abdeckung, Sparmodus, Frostschutz, Urlaubsmodus | Zustand wie in der App, soweit deine Steuerung ihn meldet |
-| Solarenergie, Absenkung, Filterung | der Satz aus der App |
-| Meldung | ob dein Spa gerade etwas meldet, mit demselben Text wie in der App |
+## Abo
 
-Was du in der App nur ansehen kannst, erscheint in Home Assistant als Anzeige. Schalten kannst du dort nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
+Home Assistant gehört zum Lotus-Abo. Endet das Abo, zeigt Home Assistant deinen Spa als „nicht verfügbar“, und deine Automationen schalten in dieser Zeit nichts. Kurz vor dem Ablauf und bei einer offenen Zahlung steht ein Hinweis unter Einstellungen › Reparaturen. Mit einem gültigen Abo geht es sofort weiter.
 
-## Wenn das Abo endet
-
-Home Assistant zeigt deinen Spa dann als „nicht verfügbar“, und deine Automationen schalten in dieser Zeit nichts. Unter Einstellungen › Reparaturen steht ein Hinweis mit dem Weg zum Abo. Mit einem gültigen Abo geht es sofort weiter, der Hinweis verschwindet von selbst.
-
-## Verbindung trennen
-
-In der Lotus-App unter Konto › Home Assistant › „Trennen“. Home Assistant verliert sofort den Zugriff und bittet beim nächsten Abruf um eine neue Anmeldung. Eine Verbindung, die 90 Tage nicht genutzt wird, löst Lotus von selbst.
+Trennen kannst du die Verbindung jederzeit in der Lotus-App unter Konto › Home Assistant. Eine Verbindung, die 90 Tage nicht genutzt wird, löst Lotus von selbst.
 
 ## Datenschutz
 
-- Home Assistant speichert kein Passwort, nur einen Zugangsschlüssel, den Lotus ausstellt und jederzeit widerrufen kann.
-- Home Assistant fragt einmal pro Minute nach dem Stand. Lotus schickt von sich aus nichts.
-- Übertragen werden nur die Werte und Befehle deiner eigenen Anlagen, und zwar an dein eigenes Home Assistant.
-- Die Diagnose zum Herunterladen enthält weder Schlüssel noch die Namen deiner Spas.
+Home Assistant speichert kein Passwort, nur einen Schlüssel, den Lotus ausstellt und den du jederzeit widerrufen kannst. Übertragen werden nur die Werte und Befehle deiner eigenen Anlagen, auf Abruf deines Home Assistant: einmal pro Minute und kurz nach einem Befehl.
 
----
+## Die Lotus-App
 
-## English
+| | | |
+|:---:|:---:|:---:|
+| <img src="bilder/bedienung.png" width="160" alt="Bedienung"> | <img src="bilder/heizen.png" width="160" alt="Heizen"> | <img src="bilder/verbrauch.png" width="160" alt="Verbrauch"> |
+| Bedienung | Heizen | Verbrauch |
 
-Connect your spa from the Lotus app to Home Assistant: water temperature, target temperature, pumps, blowers and light, heating mode, care run, bathing detection, filter and connection, with the same permissions as in the app.
+Musteranlage, Werte simuliert. [Live-Demo ansehen](https://app.lotusswimspa.de/demo)
 
-Requirements: a Lotus account with a valid subscription (an active trial counts), Home Assistant 2026.10 or newer, and „My Home Assistant“ enabled (default).
+## Hilfe
 
-Install via HACS (custom repository, type „Integration“), restart, then add the integration „Lotus Spa“ and sign in on the Lotus page. When the subscription ends, the spa shows as unavailable and a repair notice links to the subscription page; everything continues as soon as the subscription is valid again. Disconnect any time in the Lotus app under Account › Home Assistant.
+Fehler in der Integration meldest du hier unter [Issues](https://github.com/mrluco/lotus-spa-homeassistant/issues). Fragen zu deinem Spa und deinem Abo beantwortet dein Lotus-Fachhändler.

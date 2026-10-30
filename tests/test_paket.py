@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import struct
 from pathlib import Path
 
@@ -22,6 +23,9 @@ def test_manifest() -> None:
     assert m["config_flow"] is True and m["iot_class"] == "cloud_polling" and m["integration_type"] == "hub"
     assert "my" in m["dependencies"] and m["version"] and m["codeowners"] and m["documentation"].startswith("https://") and m["issue_tracker"].startswith("https://")
     assert m["requirements"] == []
+    kategorien = m.get("categories") or []
+    assert kategorien == ["water.pools_spas"] and 1 <= len(kategorien) <= 3 and len(set(kategorien)) == len(kategorien)
+    assert all(re.fullmatch(r"[a-z0-9_]+(\.[a-z0-9_]+)?", k_) for k_ in kategorien)
 
 
 def test_hacs() -> None:

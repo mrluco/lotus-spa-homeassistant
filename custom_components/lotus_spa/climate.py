@@ -11,6 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .const import DOMAIN
 from .coordinator import LotusConfigEntry, LotusKoordinator
 from .entity import LotusEntitaet
+from .schalter import heizmodi, heizmodus_aktiv, heizmodus_text, heizmodus_wert
 
 SOLL_MIN_VORGABE = 10.0
 SOLL_MAX_VORGABE = 40.0
@@ -25,6 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
 
 class LotusThermostat(LotusEntitaet, ClimateEntity):
     _attr_name = None
+    _attr_translation_key = "thermostat"
     _attr_hvac_modes = [HVACMode.HEAT]
     _attr_hvac_mode = HVACMode.HEAT
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
@@ -36,7 +38,22 @@ class LotusThermostat(LotusEntitaet, ClimateEntity):
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
-        return ClimateEntityFeature.TARGET_TEMPERATURE if self.daten.get("darf_temperatur") else ClimateEntityFeature(0)
+        merkmale = ClimateEntityFeature.TARGET_TEMPERATURE if self.daten.get("darf_temperatur") else ClimateEntityFeature(0)
+        return merkmale | ClimateEntityFeature.PRESET_MODE if heizmodi(self.daten) else merkmale
+
+    @property
+    def preset_modes(self) -> list[str] | None:
+        return [heizmodus_text(m_) for m_ in heizmodi(self.daten)] or None
+
+    @property
+    def preset_mode(self) -> str | None:
+        return heizmodus_aktiv(self.daten)
+
+    async def async_set_preset_mode(self, preset_mode: str) -> None:
+        wert = heizmodus_wert(self.daten, preset_mode)
+        if wert is None:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="unbekannte_stufe", translation_placeholders={"stufe": preset_mode})
+        await self.befehl("heizmodus", wahl=wert)
 
     @property
     def current_temperature(self) -> float | None:

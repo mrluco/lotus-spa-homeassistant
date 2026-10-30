@@ -2,34 +2,130 @@
   "entity": {
     "binary_sensor": {
       "heizung": {
-        "default": "mdi:radiator"
+        "default": "mdi:heat-wave",
+        "state": {
+          "on": "mdi:heat-wave",
+          "off": "mdi:radiator-off"
+        }
       },
       "meldung": {
-        "default": "mdi:message-alert-outline"
+        "default": "mdi:message-alert-outline",
+        "state": {
+          "on": "mdi:message-alert-outline",
+          "off": "mdi:message-outline"
+        }
       },
       "umwaelzpumpe": {
-        "default": "mdi:pump"
+        "default": "mdi:pump",
+        "state": {
+          "on": "mdi:pump",
+          "off": "mdi:pump-off"
+        }
       },
       "ozon": {
-        "default": "mdi:molecule"
+        "default": "mdi:molecule",
+        "state": {
+          "on": "mdi:molecule",
+          "off": "mdi:circle-off-outline"
+        }
       },
       "feinspuelung": {
-        "default": "mdi:water-sync"
+        "default": "mdi:water-sync",
+        "state": {
+          "on": "mdi:water-sync",
+          "off": "mdi:water-off"
+        }
       },
       "abdeckung": {
-        "default": "mdi:hot-tub"
+        "default": "mdi:window-shutter",
+        "state": {
+          "on": "mdi:window-shutter",
+          "off": "mdi:window-shutter-open"
+        }
       },
       "sparmodus": {
-        "default": "mdi:leaf"
+        "default": "mdi:leaf",
+        "state": {
+          "on": "mdi:leaf",
+          "off": "mdi:leaf-off"
+        }
       },
       "frostschutz": {
-        "default": "mdi:snowflake-thermometer"
+        "default": "mdi:snowflake-thermometer",
+        "state": {
+          "on": "mdi:snowflake-thermometer",
+          "off": "mdi:snowflake-off"
+        }
       },
       "urlaubsmodus": {
-        "default": "mdi:bag-suitcase"
+        "default": "mdi:bag-suitcase",
+        "state": {
+          "on": "mdi:bag-suitcase",
+          "off": "mdi:home"
+        }
       },
       "filter": {
-        "default": "mdi:air-filter"
+        "default": "mdi:filter",
+        "state": {
+          "on": "mdi:filter",
+          "off": "mdi:filter-off"
+        }
+      },
+      "wartung_faellig": {
+        "default": "mdi:wrench-clock",
+        "state": {
+          "on": "mdi:wrench-clock",
+          "off": "mdi:check-circle-outline"
+        }
+      },
+      "pumpe": {
+        "default": "mdi:fan",
+        "state": {
+          "on": "mdi:fan",
+          "off": "mdi:fan-off"
+        }
+      },
+      "blower": {
+        "default": "mdi:chart-bubble",
+        "state": {
+          "on": "mdi:chart-bubble",
+          "off": "mdi:chart-bubble"
+        }
+      },
+      "licht": {
+        "default": "mdi:lightbulb-on",
+        "state": {
+          "on": "mdi:lightbulb-on",
+          "off": "mdi:lightbulb-off"
+        }
+      },
+      "schalter": {
+        "default": "mdi:toggle-switch-variant",
+        "state": {
+          "on": "mdi:toggle-switch-variant",
+          "off": "mdi:toggle-switch-variant-off"
+        }
+      },
+      "verbindung": {
+        "default": "mdi:lan-connect",
+        "state": {
+          "on": "mdi:lan-connect",
+          "off": "mdi:lan-disconnect"
+        }
+      },
+      "wasserfall": {
+        "default": "mdi:waves",
+        "state": {
+          "on": "mdi:waves",
+          "off": "mdi:waves"
+        }
+      },
+      "box_verbindung": {
+        "default": "mdi:lan-connect",
+        "state": {
+          "on": "mdi:lan-connect",
+          "off": "mdi:lan-disconnect"
+        }
       }
     },
     "sensor": {
@@ -48,11 +144,65 @@
       "absenkung": {
         "default": "mdi:thermometer-chevron-down"
       },
-      "filterung": {
-        "default": "mdi:air-filter"
-      },
       "heizmodus": {
         "default": "mdi:tune-variant"
+      },
+      "solar_betriebsart": {
+        "default": "mdi:solar-power-variant"
+      },
+      "soll_grund": {
+        "default": "mdi:information-outline"
+      },
+      "filterblock": {
+        "default": "mdi:air-filter"
+      },
+      "badezeit_beginn": {
+        "default": "mdi:bathtub-outline"
+      },
+      "badezeit_ende": {
+        "default": "mdi:bathtub"
+      },
+      "wartung": {
+        "default": "mdi:calendar-check"
+      },
+      "pflegelauf_ende": {
+        "default": "mdi:timer-sand"
+      },
+      "wartungspause_ende": {
+        "default": "mdi:timer-pause-outline"
+      },
+      "aussen": {
+        "default": "mdi:thermometer"
+      },
+      "warm_um": {
+        "default": "mdi:clock-check-outline"
+      },
+      "energie": {
+        "default": "mdi:lightning-bolt"
+      },
+      "leistung": {
+        "default": "mdi:flash"
+      },
+      "kosten_heute": {
+        "default": "mdi:currency-eur"
+      },
+      "empfang": {
+        "default": "mdi:wifi"
+      },
+      "signal": {
+        "default": "mdi:wifi-strength-2"
+      },
+      "netz": {
+        "default": "mdi:router-wireless"
+      },
+      "box_start": {
+        "default": "mdi:restart"
+      },
+      "abo": {
+        "default": "mdi:card-account-details-outline"
+      },
+      "abo_bis": {
+        "default": "mdi:calendar-end"
       }
     },
     "select": {
@@ -61,11 +211,151 @@
       },
       "pflegelauf": {
         "default": "mdi:flask-outline"
+      },
+      "solar_betriebsart": {
+        "default": "mdi:solar-power-variant"
+      },
+      "pflegelauf_dauer": {
+        "default": "mdi:timer-cog-outline"
+      },
+      "absenkung": {
+        "default": "mdi:thermometer-chevron-down"
       }
     },
     "switch": {
       "badeerkennung": {
-        "default": "mdi:account-check-outline"
+        "default": "mdi:account-check-outline",
+        "state": {
+          "on": "mdi:account-check-outline",
+          "off": "mdi:account-off-outline"
+        }
+      },
+      "pumpe": {
+        "default": "mdi:fan",
+        "state": {
+          "on": "mdi:fan",
+          "off": "mdi:fan-off"
+        }
+      },
+      "blower": {
+        "default": "mdi:chart-bubble",
+        "state": {
+          "on": "mdi:chart-bubble",
+          "off": "mdi:chart-bubble"
+        }
+      },
+      "schalter": {
+        "default": "mdi:toggle-switch-variant",
+        "state": {
+          "on": "mdi:toggle-switch-variant",
+          "off": "mdi:toggle-switch-variant-off"
+        }
+      },
+      "umwaelzpumpe": {
+        "default": "mdi:pump",
+        "state": {
+          "on": "mdi:pump",
+          "off": "mdi:pump-off"
+        }
+      },
+      "wasserfall": {
+        "default": "mdi:waves",
+        "state": {
+          "on": "mdi:waves",
+          "off": "mdi:waves"
+        }
+      },
+      "wartungspause": {
+        "default": "mdi:pause-circle",
+        "state": {
+          "on": "mdi:pause-circle",
+          "off": "mdi:play-circle"
+        }
+      },
+      "urlaubsmodus": {
+        "default": "mdi:bag-suitcase"
+      },
+      "abendlicht": {
+        "default": "mdi:weather-sunset"
+      }
+    },
+    "time": {
+      "badezeit_von": {
+        "default": "mdi:clock-start"
+      },
+      "badezeit_bis": {
+        "default": "mdi:clock-end"
+      },
+      "filterzeit_von": {
+        "default": "mdi:air-filter"
+      },
+      "filterzeit_bis": {
+        "default": "mdi:air-filter"
+      }
+    },
+    "button": {
+      "wartung_erledigt": {
+        "default": "mdi:check-circle-outline"
+      }
+    },
+    "fan": {
+      "pumpe": {
+        "default": "mdi:fan",
+        "state": {
+          "on": "mdi:fan",
+          "off": "mdi:fan-off"
+        }
+      },
+      "blower": {
+        "default": "mdi:chart-bubble",
+        "state": {
+          "on": "mdi:chart-bubble",
+          "off": "mdi:chart-bubble"
+        }
+      },
+      "schalter": {
+        "default": "mdi:toggle-switch-variant",
+        "state": {
+          "on": "mdi:toggle-switch-variant",
+          "off": "mdi:toggle-switch-variant-off"
+        }
+      },
+      "umwaelzpumpe": {
+        "default": "mdi:pump",
+        "state": {
+          "on": "mdi:pump",
+          "off": "mdi:pump-off"
+        }
+      },
+      "wasserfall": {
+        "default": "mdi:waves",
+        "state": {
+          "on": "mdi:waves",
+          "off": "mdi:waves"
+        }
+      }
+    },
+    "light": {
+      "licht": {
+        "default": "mdi:lightbulb-on",
+        "state": {
+          "on": "mdi:lightbulb-on",
+          "off": "mdi:lightbulb-off"
+        }
+      }
+    },
+    "number": {
+      "volumen": {
+        "default": "mdi:hot-tub"
+      },
+      "strompreis": {
+        "default": "mdi:cash"
+      },
+      "urlaub_ziel": {
+        "default": "mdi:thermometer-low"
+      },
+      "absenkung": {
+        "default": "mdi:thermometer-minus"
       }
     }
   }

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import LotusAboNoetig, LotusAnmeldungAbgelaufen, LotusFehler, LotusKeinRecht, LotusNichtGefunden, LotusZuOft
-from .const import BASIS_URL, DOMAIN, HERSTELLER, VERSION
+from .api import LotusAboNoetig, LotusAnmeldungAbgelaufen, LotusFehler, LotusFrost, LotusKeinRecht, LotusNichtGefunden, LotusPlanGrenze, LotusZuOft
+from .const import BASIS_URL, DOMAIN, HERSTELLER
 from .coordinator import LotusKoordinator
 
 
@@ -25,12 +25,15 @@ class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):
             name=str(self.daten.get("name") or "Spa"),
             manufacturer=HERSTELLER,
             model=str(self.daten.get("modell") or "Spa"),
-            sw_version=VERSION,
+            via_device=(DOMAIN, f"box_{(self.daten.get('box') or {}).get('id')}") if (self.daten.get("box") or {}).get("id") else None,
             configuration_url=f"{BASIS_URL}/a/{anlage}/{spa}/",
         )
 
     def zustand(self, titel: str) -> dict[str, Any]:
         return next((z_ for z_ in (self.daten.get("zustaende") or []) if isinstance(z_, dict) and z_.get("titel") == titel), {})
+
+    def aufgabe(self, schluessel: str) -> dict[str, Any]:
+        return next((a_ for a_ in ((self.daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel") == schluessel), {})
 
     @property
     def daten(self) -> dict[str, Any]:
@@ -52,12 +55,33 @@ class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="kein_recht") from err
         except LotusNichtGefunden as err:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="nicht_gefunden") from err
+        except LotusPlanGrenze as err:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="plan_grenze") from err
         except LotusZuOft as err:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="zu_oft") from err
+        except LotusFrost as err:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="abgelehnt",
+                                         translation_placeholders={"grund": err.text or "-"}) from err
         except LotusFehler as err:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="abgelehnt",
                                      translation_placeholders={"grund": err.text or "-"}) from err
         if antwort.get("ok") is False:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="abgelehnt",
                                      translation_placeholders={"grund": str(antwort.get("fehler") or "-")})
-        await self.coordinator.async_request_refresh()
+        await self.coordinator.nach_befehl()
+
+
+class LotusBoxEntitaet(LotusEntitaet):
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, schluessel: str) -> None:
+        super().__init__(koordinator, geraet, f"box_{schluessel}")
+        box = self.daten.get("box") or {}
+        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, f"box_{box.get('id')}")})
+
+    @property
+    def box(self) -> dict[str, Any]:
+        return self.daten.get("box") or {}
+
+    @property
+    def available(self) -> bool:
+        return self.coordinator.last_update_success and bool(self.box)

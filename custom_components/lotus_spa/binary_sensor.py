@@ -5,12 +5,13 @@ from typing import Any
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import LESEN_AN_AUS
+from .const import DOMAIN, LESEN_AN_AUS
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusEntitaet
-from .schalter import darf, ist_an, schalter_liste, stufe_text
+from .entity import LotusBoxEntitaet, LotusEntitaet
+from .schalter import darf, ist_an, schalter_liste, stufe_text, symbol
 
 KLASSE: dict[str, BinarySensorDeviceClass] = {
     "umwaelzpumpe": BinarySensorDeviceClass.RUNNING,
@@ -21,16 +22,25 @@ KLASSE: dict[str, BinarySensorDeviceClass] = {
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
     koordinator = eintrag.runtime_data
+    register = er.async_get(hass)
     neu: list[BinarySensorEntity] = []
     for g_, daten in koordinator.data.items():
         neu.append(LotusVerbindung(koordinator, g_))
+        if (daten.get("box") or {}).get("id"):
+            neu.append(LotusBoxVerbindung(koordinator, g_))
         if daten.get("filter_laeuft") is not None:
             neu.append(LotusFilter(koordinator, g_))
         neu.append(LotusHeizung(koordinator, g_))
         neu.append(LotusMeldung(koordinator, g_))
+        geschaltet = {"Urlaubsmodus"} if isinstance(daten.get("urlaub"), dict) else set()
+        for titel in geschaltet:
+            if alt := register.async_get_entity_id("binary_sensor", DOMAIN, f"{g_}_{LESEN_AN_AUS[titel]}"):
+                register.async_remove(alt)
         neu += [LotusZustand(koordinator, g_, z_["titel"]) for z_ in (daten.get("zustaende") or [])
-                if isinstance(z_, dict) and z_.get("titel") in LESEN_AN_AUS and isinstance(z_.get("an"), bool)]
+                if isinstance(z_, dict) and z_.get("titel") in LESEN_AN_AUS and isinstance(z_.get("an"), bool) and z_["titel"] not in geschaltet]
         neu += [LotusSchalterStand(koordinator, g_, s_["titel"], s_.get("art") == "licht") for s_ in schalter_liste(daten) if not darf(s_)]
+        neu += [LotusWartungFaellig(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or ""))
+                for a_ in ((daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel")]
     hinzufuegen(neu)
 
 
@@ -90,6 +100,7 @@ class LotusSchalterStand(LotusEntitaet, BinarySensorEntity):
         super().__init__(koordinator, geraet, f"stand_{titel}")
         self.titel = titel
         self._attr_name = titel
+        self._attr_translation_key = symbol({"titel": titel, "art": "licht" if licht else "geraet"})
         self._attr_device_class = BinarySensorDeviceClass.LIGHT if licht else BinarySensorDeviceClass.RUNNING
 
     @property
@@ -121,6 +132,11 @@ class LotusFilter(LotusEntitaet, BinarySensorEntity):
     def is_on(self) -> bool:
         return bool(self.daten.get("filter_laeuft"))
 
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        text = str(self.zustand("Filterung").get("text") or "")
+        return {"text": text} if text else {}
+
 
 class LotusVerbindung(LotusEntitaet, BinarySensorEntity):
 
@@ -138,3 +154,34 @@ class LotusVerbindung(LotusEntitaet, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         return bool(self.daten.get("verbunden"))
+
+
+class LotusWartungFaellig(LotusEntitaet, BinarySensorEntity):
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_translation_key = "wartung_faellig"
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, schluessel: str, titel: str) -> None:
+        super().__init__(koordinator, geraet, f"wartung_{schluessel.replace(':', '_')}_faellig")
+        self.schluessel = schluessel
+        self._attr_translation_placeholders = {"titel": titel}
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self.aufgabe(self.schluessel))
+
+    @property
+    def is_on(self) -> bool:
+        return bool(self.aufgabe(self.schluessel).get("faellig"))
+
+
+class LotusBoxVerbindung(LotusBoxEntitaet, BinarySensorEntity):
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_translation_key = "box_verbindung"
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
+        super().__init__(koordinator, geraet, "verbindung")
+
+    @property
+    def is_on(self) -> bool:
+        return bool(self.box.get("verbunden"))

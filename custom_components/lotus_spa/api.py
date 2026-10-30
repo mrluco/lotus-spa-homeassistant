@@ -25,10 +25,11 @@ class LotusAnmeldungAbgelaufen(LotusFehler):
 
 class LotusAboNoetig(LotusFehler):
 
-    def __init__(self, text: str = "", abo_url: str = ABO_URL, zugang: str = "abo_noetig") -> None:
+    def __init__(self, text: str = "", abo_url: str = ABO_URL, zugang: str = "abo_noetig", fehlt: list[str] | None = None) -> None:
         super().__init__(text)
         self.abo_url = abo_url
         self.zugang = zugang
+        self.fehlt = list(fehlt or [])
 
 
 class LotusNichtGefunden(LotusFehler):
@@ -46,7 +47,15 @@ class LotusZuOft(LotusFehler):
         self.warten_s = warten_s
 
 
+class LotusPlanGrenze(LotusZuOft):
+    pass
+
+
 class LotusAbgelehnt(LotusFehler):
+    pass
+
+
+class LotusFrost(LotusAbgelehnt):
     pass
 
 
@@ -93,7 +102,8 @@ async def auswerten(antwort: ClientResponse) -> dict[str, Any]:
     if status == 401:
         raise LotusAnmeldungAbgelaufen(text)
     if status == 402:
-        raise LotusAboNoetig(text, str(daten.get("abo_url") or ABO_URL), str(daten.get("zugang") or "abo_noetig"))
+        raise LotusAboNoetig(text, str(daten.get("abo_url") or ABO_URL), str(daten.get("zugang") or "abo_noetig"),
+                             [str(x_) for x_ in (daten.get("fehlt") or []) if isinstance(x_, str)])
     if status == 404:
         raise LotusNichtGefunden(text)
     if status == 409:
@@ -103,7 +113,11 @@ async def auswerten(antwort: ClientResponse) -> dict[str, Any]:
             warten = float(antwort.headers.get("Retry-After") or 60)
         except ValueError:
             warten = 60.0
+        if daten.get("grenze") == "tag":
+            raise LotusPlanGrenze(text, max(1.0, warten))
         raise LotusZuOft(text, max(1.0, warten))
     if status >= 500:
         raise LotusNichtErreichbar(text or f"HTTP {status}")
+    if daten.get("frost"):
+        raise LotusFrost(text)
     raise LotusAbgelehnt(text or f"HTTP {status}")
