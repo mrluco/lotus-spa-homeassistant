@@ -33,7 +33,7 @@
 
 Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
 
-Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Einstellungen › Reparaturen einen Hinweis, was das Abo dazubringt. In der Lotus-App bedienst du deinen Spa weiter wie gewohnt. Ein Testzugang zählt wie ein Abo.
+Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Einstellungen › Reparaturen einen Hinweis, was das Abo dazubringt. In der Lotus-App bedienst du deinen Spa weiter wie gewohnt.
 
 <details>
 <summary>Alle Entitäten im Einzelnen</summary>

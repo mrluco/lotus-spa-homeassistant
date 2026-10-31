@@ -33,7 +33,7 @@
 
 You can only switch what you may switch in the app. Every command appears in your spa's log with "Home Assistant".
 
-Without a subscription, Home Assistant shows your spa as "unavailable" and a note under Settings › Repairs on what the subscription adds. In the Lotus app you keep using your spa as usual. A trial counts as a subscription.
+Without a subscription, Home Assistant shows your spa as "unavailable" and a note under Settings › Repairs on what the subscription adds. In the Lotus app you keep using your spa as usual.
 
 Filter time changes take effect at the next start, never immediately. While solar leads, filter times are read-only. Home Assistant changes schedules at most four times a day.
 
