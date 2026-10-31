@@ -232,6 +232,15 @@
           },
           "vorwarnung": {
             "name": "Due soon"
+          },
+          "ruht": {
+            "name": "Rests"
+          },
+          "grund": {
+            "name": "Reason"
+          },
+          "hinweis": {
+            "name": "Note"
           }
         }
       },
@@ -383,6 +392,9 @@
     },
     "plan_grenze": {
       "message": "The plan has already been changed four times from Home Assistant today. It works again tomorrow, and in the app at any time."
+    },
+    "zu_oft_warten": {
+      "message": "Many commands arrived in quick succession. Please wait {sekunden} seconds."
     }
   },
   "issues": {

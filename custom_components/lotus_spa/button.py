@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import LotusConfigEntry, LotusKoordinator
@@ -13,11 +13,21 @@ PARALLEL_UPDATES = 1
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
     koordinator = eintrag.runtime_data
-    neu: list[ButtonEntity] = []
-    for g_, daten in koordinator.data.items():
-        neu += [LotusWartungErledigt(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or ""))
-                for a_ in ((daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel") and a_.get("erledigen")]
-    hinzufuegen(neu)
+    bekannt: set[tuple[str, str]] = set()
+
+    @callback
+    def nachziehen() -> None:
+        neu: list[ButtonEntity] = []
+        for g_, daten in (koordinator.data or {}).items():
+            for a_ in (daten.get("wartung") or {}).get("aufgaben") or []:
+                if isinstance(a_, dict) and a_.get("schluessel") and (g_, str(a_["schluessel"])) not in bekannt:
+                    bekannt.add((g_, str(a_["schluessel"])))
+                    neu.append(LotusWartungErledigt(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or "")))
+        if neu:
+            hinzufuegen(neu)
+
+    nachziehen()
+    eintrag.async_on_unload(koordinator.async_add_listener(nachziehen))
 
 
 class LotusWartungErledigt(LotusEntitaet, ButtonEntity):

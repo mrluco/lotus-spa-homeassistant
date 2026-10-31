@@ -232,6 +232,15 @@
           },
           "vorwarnung": {
             "name": "Bald fällig"
+          },
+          "ruht": {
+            "name": "Ruht"
+          },
+          "grund": {
+            "name": "Grund"
+          },
+          "hinweis": {
+            "name": "Hinweis"
           }
         }
       },
@@ -383,6 +392,9 @@
     },
     "plan_grenze": {
       "message": "Heute wurde der Plan schon viermal aus Home Assistant geändert. Morgen geht es wieder, in der App jederzeit."
+    },
+    "zu_oft_warten": {
+      "message": "Gerade kamen viele Befehle kurz hintereinander. Bitte warte {sekunden} Sekunden."
     }
   },
   "issues": {

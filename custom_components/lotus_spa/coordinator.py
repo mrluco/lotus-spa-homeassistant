@@ -39,6 +39,7 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self.api = api
         self.abo_noetig = False
         self.konto: dict[str, Any] | None = None
+        self.box_geraete: dict[str, str] = {}
         self._nachlesen_lauf: asyncio.Task[None] | None = None
 
     async def nach_befehl(self) -> None:

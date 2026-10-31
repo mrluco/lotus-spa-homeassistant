@@ -41,8 +41,9 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry) -> b
     for daten in koordinator.data.values():
         box = daten.get("box") or {}
         if box.get("id"):
-            geraete.async_get_or_create(config_entry_id=eintrag.entry_id, identifiers={(DOMAIN, f"box_{box['id']}")}, name="Lotus Box",
-                                        manufacturer=HERSTELLER, model="Lotus Box", sw_version=box.get("firmware") or None)
+            koordinator.box_geraete[str(box["id"])] = geraete.async_get_or_create(
+                config_entry_id=eintrag.entry_id, identifiers={(DOMAIN, f"box_{box['id']}")}, name="Lotus Box",
+                manufacturer=HERSTELLER, model="Lotus Box", sw_version=box.get("firmware") or None).id
     await hass.config_entries.async_forward_entry_setups(eintrag, PLATTFORMEN)
     return True
 

@@ -17,6 +17,11 @@
 
 <p align="center"><a href="README.md">Deutsch</a> · <b>English</b></p>
 
+| | | | |
+|:---:|:---:|:---:|:---:|
+| <img src="bilder/ha-geraet.png" width="200" alt="Device"> | <img src="bilder/ha-steuerung.png" width="200" alt="Controls"> | <img src="bilder/ha-wartung.png" width="200" alt="Maintenance and schedules"> | <img src="bilder/ha-energie.png" width="200" alt="Energy and account"> |
+| Device | Controls | Maintenance and schedules | Energy and account |
+
 ## What you get
 
 - **Control:** target temperature, heating mode, pumps, blowers and light, vacation mode, setback and evening light. A two-speed pump offers low and high.

@@ -25,7 +25,7 @@ class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):
             name=str(self.daten.get("name") or "Spa"),
             manufacturer=HERSTELLER,
             model=str(self.daten.get("modell") or "Spa"),
-            via_device=(DOMAIN, f"box_{(self.daten.get('box') or {}).get('id')}") if (self.daten.get("box") or {}).get("id") else None,
+            via_device_id=koordinator.box_geraete.get(str((self.daten.get("box") or {}).get("id") or "")),
             configuration_url=f"{BASIS_URL}/a/{anlage}/{spa}/",
             sw_version=VERSION,
         )
@@ -59,7 +59,8 @@ class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):
         except LotusPlanGrenze as err:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="plan_grenze") from err
         except LotusZuOft as err:
-            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="zu_oft") from err
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="zu_oft_warten",
+                                     translation_placeholders={"sekunden": str(max(1, round(err.warten_s)))}) from err
         except LotusFrost as err:
             raise ServiceValidationError(translation_domain=DOMAIN, translation_key="abgelehnt",
                                          translation_placeholders={"grund": err.text or "-"}) from err

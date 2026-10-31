@@ -217,7 +217,8 @@ class LotusWartungTermin(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool(self.aufgabe(self.schluessel).get("faellig_am"))
+        a_ = self.aufgabe(self.schluessel)
+        return super().available and bool(a_.get("faellig_am") or a_.get("hinweis"))
 
     @property
     def native_value(self) -> date | None:
@@ -230,7 +231,8 @@ class LotusWartungTermin(LotusEntitaet, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, int | str | bool | None]:
         a_ = self.aufgabe(self.schluessel)
-        return {"tage_uebrig": a_.get("tage_uebrig"), "text": str(a_.get("text") or ""), "vorwarnung": bool(a_.get("vorwarnung"))}
+        return {"tage_uebrig": a_.get("tage_uebrig"), "text": str(a_.get("text") or ""), "vorwarnung": bool(a_.get("vorwarnung")),
+                "ruht": bool(a_.get("ruht")), "grund": str(a_.get("grund") or ""), "hinweis": str(a_.get("hinweis") or "")}
 
 
 class LotusEnde(LotusEntitaet, SensorEntity):
@@ -352,6 +354,7 @@ ENERGIE_WERTE: tuple[tuple[str, SensorDeviceClass | None, SensorStateClass, str,
 
 
 class LotusEnergieWert(LotusEnergieBasis):
+    _unrecorded_attributes = frozenset({"tage"})
 
     def __init__(self, koordinator: LotusKoordinator, geraet: str, schluessel: str, klasse: SensorDeviceClass | None, art: SensorStateClass,
                  einheit: str, stellen: int) -> None:
@@ -366,6 +369,11 @@ class LotusEnergieWert(LotusEnergieBasis):
     @property
     def available(self) -> bool:
         return super().available and isinstance(self.energie.get(self.schluessel), (int, float))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, list[dict]] | None:
+        tage = self.energie.get("tage")
+        return {"tage": [t_ for t_ in tage if isinstance(t_, dict)]} if self.schluessel == "kwh_heute" and isinstance(tage, list) else None
 
     @property
     def native_value(self) -> float | None:

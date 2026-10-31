@@ -17,6 +17,11 @@
 
 <p align="center"><b>Deutsch</b> · <a href="README.en.md">English</a></p>
 
+| | | | |
+|:---:|:---:|:---:|:---:|
+| <img src="bilder/ha-geraet.png" width="200" alt="Gerät"> | <img src="bilder/ha-steuerung.png" width="200" alt="Steuerung"> | <img src="bilder/ha-wartung.png" width="200" alt="Wartung und Pläne"> | <img src="bilder/ha-energie.png" width="200" alt="Energie und Konto"> |
+| Gerät | Steuerung | Wartung und Pläne | Energie und Konto |
+
 ## Was du bekommst
 
 - **Bedienen:** Wunschtemperatur, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
@@ -55,7 +60,7 @@ Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl ste
 | Grund der Solltemperatur | derselbe Satz wie in der App, zum Beispiel „Badezeit, gehalten auf 38,0 °C“ |
 | Filterblock | der laufende Filterblock, dazu die Filterläufe von heute |
 | Filterzeiten | Beginn und Ende je Filterlauf; eine Änderung übernimmt Lotus zum nächsten Beginn, nie sofort. Solange „Solar führt“, nur zum Ansehen |
-| Wartung | je Aufgabe aus der App: nächster Termin, ob sie fällig ist, und ein Knopf „erledigt“ |
+| Wartung | je Aufgabe aus der App: nächster Termin, ob sie fällig ist, und ein Knopf „erledigt“; ruht eine Erinnerung deiner Steuerung (zum Beispiel bei chlorfreier Pflege), steht das mit dem Grund dabei; hat deine Steuerung ihre Erinnerungen noch nicht gemeldet, steht dort, was du tun kannst |
 | Außentemperatur | der Wert aus der App (Deutscher Wetterdienst) |
 | Warm um | wann dein Wasser warm ist, solange geheizt wird |
 | Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt, wenn deine Steuerung nicht misst) |
