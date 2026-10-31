@@ -7,7 +7,7 @@
 <p align="center">
 <a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS Custom"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/releases"><img src="https://img.shields.io/github/v/release/mrluco/lotus-spa-homeassistant" alt="Release"></a>
-<a href="LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="Lizenz"></a>
+<a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="Lizenz"></a>
 </p>
 
 <p align="center">
@@ -15,14 +15,14 @@
 <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=lotus_spa"><img src="https://my.home-assistant.io/badges/config_flow_start.svg" alt="Open your Home Assistant instance and start setting up a new integration."></a>
 </p>
 
-<p align="center"><b>Deutsch</b> · <a href="README.en.md">English</a></p>
+<p align="center"><b>Deutsch</b> · <a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/README.en.md">English</a></p>
 
 | | | | |
 |:---:|:---:|:---:|:---:|
 | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-geraet.png" width="200" alt="Gerät"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-steuerung.png" width="200" alt="Steuerung"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-wartung.png" width="200" alt="Wartung und Pläne"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-energie.png" width="200" alt="Energie und Konto"> |
 | Gerät | Steuerung | Wartung und Pläne | Energie und Konto |
 
-## Was du bekommst
+## Was du mit dem Abo bekommst
 
 - **Bedienen:** Wunschtemperatur, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
 - **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm um“ beim Aufheizen.
@@ -32,6 +32,8 @@
 - **Lotus Box und Konto:** Verbindung und WLAN-Empfang der Box, dein Abo und bis wann es gilt.
 
 Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
+
+Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Einstellungen › Reparaturen einen Hinweis, was das Abo dazubringt. In der Lotus-App bedienst du deinen Spa weiter wie gewohnt. Ein Testzugang zählt wie ein Abo.
 
 <details>
 <summary>Alle Entitäten im Einzelnen</summary>

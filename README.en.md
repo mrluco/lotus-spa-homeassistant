@@ -7,7 +7,7 @@
 <p align="center">
 <a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS Custom"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/releases"><img src="https://img.shields.io/github/v/release/mrluco/lotus-spa-homeassistant" alt="Release"></a>
-<a href="LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="License"></a>
+<a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="License"></a>
 </p>
 
 <p align="center">
@@ -15,14 +15,14 @@
 <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=lotus_spa"><img src="https://my.home-assistant.io/badges/config_flow_start.svg" alt="Open your Home Assistant instance and start setting up a new integration."></a>
 </p>
 
-<p align="center"><a href="README.md">Deutsch</a> · <b>English</b></p>
+<p align="center"><a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/README.md">Deutsch</a> · <b>English</b></p>
 
 | | | | |
 |:---:|:---:|:---:|:---:|
 | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-geraet.png" width="200" alt="Device"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-steuerung.png" width="200" alt="Controls"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-wartung.png" width="200" alt="Maintenance and schedules"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-energie.png" width="200" alt="Energy and account"> |
 | Device | Controls | Maintenance and schedules | Energy and account |
 
-## What you get
+## What you get with the subscription
 
 - **Control:** target temperature, heating mode, pumps, blowers and light, vacation mode, setback and evening light. A two-speed pump offers low and high.
 - **Status:** water temperature, outdoor temperature, filtering, messages with the text from the app, "Warm at" while heating up.
@@ -32,6 +32,8 @@
 - **Lotus Box and account:** connection and Wi-Fi reception of the box, your subscription and its end date.
 
 You can only switch what you may switch in the app. Every command appears in your spa's log with "Home Assistant".
+
+Without a subscription, Home Assistant shows your spa as "unavailable" and a note under Settings › Repairs on what the subscription adds. In the Lotus app you keep using your spa as usual. A trial counts as a subscription.
 
 Filter time changes take effect at the next start, never immediately. While solar leads, filter times are read-only. Home Assistant changes schedules at most four times a day.
 
