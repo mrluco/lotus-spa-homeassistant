@@ -1,4 +1,4 @@
-<p align="center"><img src="bilder/logo.png" alt="Lotus" width="120"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/logo.png" alt="Lotus" width="120"></p>
 
 <h1 align="center">Lotus Spa for Home Assistant</h1>
 
@@ -19,7 +19,7 @@
 
 | | | | |
 |:---:|:---:|:---:|:---:|
-| <img src="bilder/ha-geraet.png" width="200" alt="Device"> | <img src="bilder/ha-steuerung.png" width="200" alt="Controls"> | <img src="bilder/ha-wartung.png" width="200" alt="Maintenance and schedules"> | <img src="bilder/ha-energie.png" width="200" alt="Energy and account"> |
+| <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-geraet.png" width="200" alt="Device"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-steuerung.png" width="200" alt="Controls"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-wartung.png" width="200" alt="Maintenance and schedules"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-energie.png" width="200" alt="Energy and account"> |
 | Device | Controls | Maintenance and schedules | Energy and account |
 
 ## What you get
@@ -66,7 +66,7 @@ Home Assistant stores no password, only a key issued by Lotus that you can revok
 
 | | | |
 |:---:|:---:|:---:|
-| <img src="bilder/bedienung.png" width="160" alt="Controls"> | <img src="bilder/heizen.png" width="160" alt="Heating"> | <img src="bilder/verbrauch.png" width="160" alt="Consumption"> |
+| <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/bedienung.png" width="160" alt="Controls"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/heizen.png" width="160" alt="Heating"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/verbrauch.png" width="160" alt="Consumption"> |
 | Controls | Heating | Consumption |
 
 Sample spa, simulated values. [View the live demo](https://app.lotusswimspa.de/demo)

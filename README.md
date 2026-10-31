@@ -1,4 +1,4 @@
-<p align="center"><img src="bilder/logo.png" alt="Lotus" width="120"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/logo.png" alt="Lotus" width="120"></p>
 
 <h1 align="center">Lotus Spa für Home Assistant</h1>
 
@@ -19,7 +19,7 @@
 
 | | | | |
 |:---:|:---:|:---:|:---:|
-| <img src="bilder/ha-geraet.png" width="200" alt="Gerät"> | <img src="bilder/ha-steuerung.png" width="200" alt="Steuerung"> | <img src="bilder/ha-wartung.png" width="200" alt="Wartung und Pläne"> | <img src="bilder/ha-energie.png" width="200" alt="Energie und Konto"> |
+| <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-geraet.png" width="200" alt="Gerät"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-steuerung.png" width="200" alt="Steuerung"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-wartung.png" width="200" alt="Wartung und Pläne"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/ha-energie.png" width="200" alt="Energie und Konto"> |
 | Gerät | Steuerung | Wartung und Pläne | Energie und Konto |
 
 ## Was du bekommst
@@ -110,7 +110,7 @@ Home Assistant speichert kein Passwort, nur einen Schlüssel, den Lotus ausstell
 
 | | | |
 |:---:|:---:|:---:|
-| <img src="bilder/bedienung.png" width="160" alt="Bedienung"> | <img src="bilder/heizen.png" width="160" alt="Heizen"> | <img src="bilder/verbrauch.png" width="160" alt="Verbrauch"> |
+| <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/bedienung.png" width="160" alt="Bedienung"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/heizen.png" width="160" alt="Heizen"> | <img src="https://raw.githubusercontent.com/mrluco/lotus-spa-homeassistant/main/bilder/verbrauch.png" width="160" alt="Verbrauch"> |
 | Bedienung | Heizen | Verbrauch |
 
 Musteranlage, Werte simuliert. [Live-Demo ansehen](https://app.lotusswimspa.de/demo)
