@@ -13,7 +13,7 @@ from .entity import LotusEntitaet
 from .schalter import AUS, art, darf, erste_stufe, ist_an, schalter_liste, symbol
 
 PARALLEL_UPDATES = 1
-QUELLE = {"urlaubsmodus": "urlaub", "abendlicht": "abendlicht"}
+QUELLE = {"urlaubsmodus": "urlaub", "abendlicht": "abendlicht", "boost_sonne": "boost_sonne"}
 WUNSCH_S = 15.0
 
 
@@ -25,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         neu += [LotusBadeerkennung(koordinator, g_, str(b_)) for b_ in ((daten.get("badeerkennung") or {}).get("geraete") or [])]
         if daten.get("wartungspause"):
             neu.append(LotusWartungspause(koordinator, g_))
-        neu += [LotusEinstellung(koordinator, g_, was) for was in ("urlaubsmodus", "abendlicht") if isinstance(daten.get(QUELLE[was]), dict)]
+        neu += [LotusEinstellung(koordinator, g_, was) for was in ("urlaubsmodus", "abendlicht", "boost_sonne") if isinstance(daten.get(QUELLE[was]), dict)]
     hinzufuegen(neu)
 
 

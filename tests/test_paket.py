@@ -64,6 +64,10 @@ def test_uebersetzungen_wie_hassfest() -> None:
             assert not re.search(r"<[a-z/!]", text, re.IGNORECASE), (sprache, pfad)
             assert not re.search(r"'\{\w+\}'", text), (sprache, pfad)
             assert all(feld_.isidentifier() for _, feld_, _, _ in string.Formatter().parse(text) if feld_), (sprache, pfad)
+        for pfad, text in _texte({k_: daten.get(k_) or {} for k_ in ("config", "options")}):
+            if not pfad.startswith("config.abort."):
+                assert not re.search(r"\{\w*_url\}|demo", text, re.IGNORECASE), (sprache, pfad)
+        assert "{abo_url}" in daten["config"]["abort"]["abo_noetig"], sprache
         for pfad, _ in _texte(daten.get("entity") or {}):
             assert all(SCHLUESSEL.match(t_) for t_ in pfad.split(".")[1:-1] if t_ not in ("state", "state_attributes", "name")), (sprache, pfad)
 

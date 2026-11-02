@@ -47,15 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         if "energie" in daten and daten.get("energie") is not None:
             neu += [LotusEnergie(koordinator, g_), LotusLeistung(koordinator, g_), LotusKostenHeute(koordinator, g_)]
             neu += [LotusEnergieWert(koordinator, g_, *art_) for art_ in ENERGIE_WERTE]
-        box = daten.get("box") or {}
-        if box.get("id"):
-            neu.append(LotusEmpfang(koordinator, g_))
-            if box.get("rssi") is not None:
-                neu.append(LotusSignal(koordinator, g_))
-            if box.get("ssid"):
-                neu.append(LotusNetz(koordinator, g_))
-            if box.get("seit"):
-                neu.append(LotusBoxStart(koordinator, g_))
+        neu += box_sensoren(koordinator, g_)
         if daten.get("wartungspause"):
             neu.append(LotusEnde(koordinator, g_, "wartungspause"))
         if daten.get("badezeiten") or daten.get("naechste_badezeit"):
@@ -65,6 +57,33 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
     hinzufuegen(neu)
     if koordinator.konto is not None:
         abo_bis_folgen(hass, eintrag, koordinator, hinzufuegen)
+    box_da = {g_ for g_, daten in koordinator.data.items() if (daten.get("box") or {}).get("id")}
+
+    @callback
+    def box_nachziehen() -> None:
+        neu_box: list[SensorEntity] = []
+        for g_, daten in (koordinator.data or {}).items():
+            if (daten.get("box") or {}).get("id") and g_ not in box_da:
+                box_da.add(g_)
+                neu_box += box_sensoren(koordinator, g_)
+        if neu_box:
+            hinzufuegen(neu_box)
+
+    eintrag.async_on_unload(koordinator.async_add_listener(box_nachziehen))
+
+
+def box_sensoren(koordinator: LotusKoordinator, g_: str) -> list[SensorEntity]:
+    box = (koordinator.data.get(g_) or {}).get("box") or {}
+    if not box.get("id"):
+        return []
+    neu: list[SensorEntity] = [LotusEmpfang(koordinator, g_)]
+    if box.get("rssi") is not None:
+        neu.append(LotusSignal(koordinator, g_))
+    if box.get("ssid"):
+        neu.append(LotusNetz(koordinator, g_))
+    if box.get("seit"):
+        neu.append(LotusBoxStart(koordinator, g_))
+    return neu
 
 
 def abo_bis_folgen(hass: HomeAssistant, eintrag: LotusConfigEntry, koordinator: LotusKoordinator, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:

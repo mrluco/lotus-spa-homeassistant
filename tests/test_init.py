@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.5"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.6"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -599,6 +599,30 @@ async def test_ohne_box_keine_box(hass: HomeAssistant, eintrag: MockConfigEntry,
     assert dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id).via_device_id is None
 
 
+async def test_box_kommt_ohne_neuladen(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock)
+    register = dr.async_get(hass)
+    assert register.async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id).via_device_id is None
+    box = {"id": "c1d2e3f4a5b6c7d8", "verbunden": True, "empfang": "gut", "rssi": -60, "ssid": "Musternetz", "firmware": "2.0.17", "seit": None}
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel(box=box))
+    await _naechster_abruf(hass)
+    box_geraet = register.async_get_device_by_identifier((DOMAIN, "box_c1d2e3f4a5b6c7d8"), eintrag.entry_id)
+    spa = register.async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
+    assert box_geraet is not None and box_geraet.sw_version == "2.0.17" and spa.via_device_id == box_geraet.id
+    assert hass.states.get("binary_sensor.lotus_box_verbindung").state == STATE_ON
+    assert hass.states.get("sensor.lotus_box_wlan_empfang").state == "gut"
+    assert hass.states.get("sensor.lotus_box_wlan").state == "Musternetz"
+    anzahl = len(dr.async_entries_for_config_entry(register, eintrag.entry_id))
+    await _naechster_abruf(hass)
+    assert len(dr.async_entries_for_config_entry(register, eintrag.entry_id)) == anzahl
+    assert len([e_ for e_ in er.async_entries_for_config_entry(er.async_get(hass), eintrag.entry_id) if "box_verbindung" in e_.unique_id]) == 1
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel())
+    await _naechster_abruf(hass)
+    assert register.async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id).via_device_id is None
+
+
 async def test_box_ohne_veraltetes_via_device(
     hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -678,6 +702,61 @@ async def test_heizmodus_ohne_recht_kein_preset(hass: HomeAssistant, eintrag: Mo
     await _einrichten(hass, eintrag, aioclient_mock, beispiel)
     thermostat = hass.states.get("climate.mein_spa")
     assert thermostat.attributes["supported_features"] == 1 and "preset_modes" not in thermostat.attributes
+
+
+BETRIEBSART = {"aktiv": "STANDARD", "darf": True,
+               "modi": [{"wert": "AWAY", "text": "Abwesend"}, {"wert": "STANDARD", "text": "Standard"}, {"wert": "SAVINGS", "text": "Energiesparen"}]}
+
+
+async def test_betriebsart_als_preset(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(heizmodus=None, betriebsart=BETRIEBSART))
+    thermostat = hass.states.get("climate.mein_spa")
+    assert thermostat.attributes["supported_features"] == 17
+    assert thermostat.attributes["preset_modes"] == ["Abwesend", "Standard", "Energiesparen"] and thermostat.attributes["preset_mode"] == "Standard"
+    alle = {s_.entity_id for s_ in hass.states.async_all()}
+    assert alle == GRUND | {"fan.mein_spa_pumpe_1", "switch.mein_spa_pumpe_2", "light.mein_spa_licht"}
+    await hass.services.async_call("climate", "set_preset_mode", {"entity_id": "climate.mein_spa", "preset_mode": "Abwesend"}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "betriebsart", "wahl": "AWAY"}]
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call("climate", "set_preset_mode", {"entity_id": "climate.mein_spa", "preset_mode": "Urlaub"}, blocking=True)
+    assert len(_befehle(aioclient_mock)) == 1
+
+
+async def test_betriebsart_ohne_recht_kein_preset(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(heizmodus=None, betriebsart=dict(BETRIEBSART, darf=False)))
+    thermostat = hass.states.get("climate.mein_spa")
+    assert thermostat.attributes["supported_features"] == 1 and "preset_modes" not in thermostat.attributes
+
+
+async def test_boost_sonne_schalter(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(boost_sonne={"an": False}))
+    assert hass.states.get("switch.mein_spa_boost_mit_sonne").state == STATE_OFF
+    await hass.services.async_call("switch", "turn_on", {"entity_id": "switch.mein_spa_boost_mit_sonne"}, blocking=True)
+    await hass.services.async_call("switch", "turn_off", {"entity_id": "switch.mein_spa_boost_mit_sonne"}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "boost_sonne", "wahl": "an"}, {"geraet": GERAET, "was": "boost_sonne", "wahl": "aus"}]
+
+
+async def test_boost_sonne_ohne_zeile_keine_entitaet(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(boost_sonne=None))
+    assert hass.states.get("switch.mein_spa_boost_mit_sonne") is None
+
+
+async def test_boost_sonne_ohne_recht(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    aioclient_mock.get(STAND, json=stand_beispiel(boost_sonne={"an": False}))
+    aioclient_mock.post(BEFEHL, status=403, json={"ok": False, "fehler": "Dafür fehlt dir die Berechtigung."})
+    assert await hass.config_entries.async_setup(eintrag.entry_id)
+    await hass.async_block_till_done()
+    with pytest.raises(HomeAssistantError):
+        await hass.services.async_call("switch", "turn_on", {"entity_id": "switch.mein_spa_boost_mit_sonne"}, blocking=True)
+    assert hass.states.get("switch.mein_spa_boost_mit_sonne").state == STATE_OFF
+
+
+async def test_heizmodus_vor_betriebsart(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(betriebsart=BETRIEBSART))
+    thermostat = hass.states.get("climate.mein_spa")
+    assert thermostat.attributes["preset_modes"] == ["Standard", "Energiesparen"] and thermostat.attributes["preset_mode"] == "Standard"
+    await hass.services.async_call("climate", "set_preset_mode", {"entity_id": "climate.mein_spa", "preset_mode": "Energiesparen"}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "heizmodus", "wahl": "sparen"}]
 
 
 async def test_urlaub_absenkung_abendlicht(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

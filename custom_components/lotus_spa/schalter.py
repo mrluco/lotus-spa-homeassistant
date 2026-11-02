@@ -69,3 +69,25 @@ def heizmodus_aktiv(daten: dict[str, Any]) -> str | None:
 def heizmodus_wert(daten: dict[str, Any], text: str) -> str | None:
     return next((str(m_["wert"]) for m_ in heizmodi(daten) if heizmodus_text(m_) == text), None)
 
+
+def betriebsarten(daten: dict[str, Any]) -> list[dict[str, str]]:
+    betriebsart = daten.get("betriebsart") or {}
+    return [m_ for m_ in (betriebsart.get("modi") or []) if isinstance(m_, dict)] if betriebsart.get("darf") else []
+
+
+def voreinstellung(daten: dict[str, Any]) -> tuple[str, str, list[dict[str, str]]]:
+    if heizmodi(daten):
+        return "heizmodus", "heizmodus", heizmodi(daten)
+    return "betriebsart", "betriebsart", betriebsarten(daten)
+
+
+def voreinstellung_aktiv(daten: dict[str, Any]) -> str | None:
+    feld, _, modi = voreinstellung(daten)
+    aktiv = str((daten.get(feld) or {}).get("aktiv") or "")
+    return next((heizmodus_text(m_) for m_ in modi if str(m_.get("wert")) == aktiv), None)
+
+
+def voreinstellung_wert(daten: dict[str, Any], text: str) -> tuple[str, str | None]:
+    _, befehl, modi = voreinstellung(daten)
+    return befehl, next((str(m_["wert"]) for m_ in modi if heizmodus_text(m_) == text), None)
+

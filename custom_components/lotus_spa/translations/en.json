@@ -2,8 +2,7 @@
   "config": {
     "step": {
       "auth": {
-        "title": "Sign in with Lotus",
-        "description": "No Lotus account yet? Take a look at the live demo: {demo_url}"
+        "title": "Sign in with Lotus"
       },
       "pick_implementation": {
         "title": "Choose sign-in"
@@ -171,6 +170,9 @@
       },
       "abendlicht": {
         "name": "Evening light"
+      },
+      "boost_sonne": {
+        "name": "Solar boost"
       }
     },
     "sensor": {

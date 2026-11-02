@@ -72,6 +72,8 @@ def stand_beispiel(**aenderung: Any) -> dict[str, Any]:
         "urlaub": None,
         "absenkung": None,
         "abendlicht": None,
+        "betriebsart": None,
+        "boost_sonne": None,
     }
     konto = aenderung.pop("konto", None)
     geraet.update(aenderung)

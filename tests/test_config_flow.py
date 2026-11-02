@@ -32,7 +32,7 @@ async def _bis_zum_token(hass: HomeAssistant, client_fabrik: ClientSessionGenera
     if result["type"] is FlowResultType.FORM:
         result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.EXTERNAL_STEP
-    assert result["description_placeholders"]["demo_url"] == "https://app.lotusswimspa.de/demo"
+    assert not any(k_.endswith("_url") for k_ in (result.get("description_placeholders") or {}))
     url = urlparse(result["url"])
     q = {k: v[0] for k, v in parse_qs(url.query).items()}
     state = config_entry_oauth2_flow._encode_jwt(hass, {"flow_id": result["flow_id"], "redirect_uri": MY_RUECK})

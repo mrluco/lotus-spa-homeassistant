@@ -6,12 +6,11 @@ from typing import Any
 
 from aiohttp import ClientError
 from homeassistant.config_entries import SOURCE_REAUTH, ConfigFlowResult
-from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LotusAboNoetig, LotusFehler, auswerten
-from .const import ABO_URL, API_URL, DEMO_URL, DOMAIN
+from .const import ABO_URL, API_URL, DOMAIN
 from .oauth import lotus_oauth_anmelden
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,12 +27,6 @@ class LotusFlow(config_entry_oauth2_flow.AbstractOAuth2FlowHandler, domain=DOMAI
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         lotus_oauth_anmelden(self.hass)
         return await super().async_step_user(user_input)
-
-    async def async_step_auth(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        ergebnis = await super().async_step_auth(user_input)
-        if ergebnis.get("type") is FlowResultType.EXTERNAL_STEP:
-            ergebnis["description_placeholders"] = {**(ergebnis.get("description_placeholders") or {}), "demo_url": DEMO_URL}
-        return ergebnis
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         return await self.async_step_reauth_confirm()

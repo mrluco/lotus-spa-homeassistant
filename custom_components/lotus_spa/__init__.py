@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import issue_registry as ir
@@ -38,12 +38,22 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry) -> b
     if koordinator.konto is not None:
         geraete.async_get_or_create(config_entry_id=eintrag.entry_id, identifiers={(DOMAIN, f"konto_{eintrag.entry_id}")}, name="Lotus Konto",
                                     manufacturer=HERSTELLER, model="Konto", entry_type=dr.DeviceEntryType.SERVICE, configuration_url=KONTO_URL)
-    for daten in koordinator.data.values():
-        box = daten.get("box") or {}
-        if box.get("id"):
-            koordinator.box_geraete[str(box["id"])] = geraete.async_get_or_create(
-                config_entry_id=eintrag.entry_id, identifiers={(DOMAIN, f"box_{box['id']}")}, name="Lotus Box",
-                manufacturer=HERSTELLER, model="Lotus Box", sw_version=box.get("firmware") or None).id
+    @callback
+    def box_folgen() -> None:
+        for g_, daten in (koordinator.data or {}).items():
+            box = daten.get("box") or {}
+            kennung = str(box.get("id") or "")
+            if kennung and kennung not in koordinator.box_geraete:
+                koordinator.box_geraete[kennung] = geraete.async_get_or_create(
+                    config_entry_id=eintrag.entry_id, identifiers={(DOMAIN, f"box_{kennung}")}, name="Lotus Box",
+                    manufacturer=HERSTELLER, model="Lotus Box", sw_version=box.get("firmware") or None).id
+            ziel = koordinator.box_geraete.get(kennung) if kennung else None
+            spa = geraete.async_get_device_by_identifier((DOMAIN, g_), eintrag.entry_id)
+            if spa is not None and spa.via_device_id != ziel:
+                geraete.async_update_device(spa.id, via_device_id=ziel)
+
+    box_folgen()
+    eintrag.async_on_unload(koordinator.async_add_listener(box_folgen))
     await hass.config_entries.async_forward_entry_setups(eintrag, PLATTFORMEN)
     return True
 

@@ -2,8 +2,7 @@
   "config": {
     "step": {
       "auth": {
-        "title": "Mit Lotus anmelden",
-        "description": "Noch kein Lotus-Konto? Sieh dir die Live-Demo an: {demo_url}"
+        "title": "Mit Lotus anmelden"
       },
       "pick_implementation": {
         "title": "Anmeldung wählen"
@@ -171,6 +170,9 @@
       },
       "abendlicht": {
         "name": "Abendlicht"
+      },
+      "boost_sonne": {
+        "name": "Boost mit Sonne"
       }
     },
     "sensor": {

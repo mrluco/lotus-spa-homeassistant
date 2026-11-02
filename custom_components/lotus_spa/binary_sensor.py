@@ -4,7 +4,7 @@ from typing import Any
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -42,6 +42,19 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         neu += [LotusWartungFaellig(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or ""))
                 for a_ in ((daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel")]
     hinzufuegen(neu)
+    box_da = {g_ for g_, daten in koordinator.data.items() if (daten.get("box") or {}).get("id")}
+
+    @callback
+    def box_nachziehen() -> None:
+        neu_box: list[BinarySensorEntity] = []
+        for g_, daten in (koordinator.data or {}).items():
+            if (daten.get("box") or {}).get("id") and g_ not in box_da:
+                box_da.add(g_)
+                neu_box.append(LotusBoxVerbindung(koordinator, g_))
+        if neu_box:
+            hinzufuegen(neu_box)
+
+    eintrag.async_on_unload(koordinator.async_add_listener(box_nachziehen))
 
 
 class LotusHeizung(LotusEntitaet, BinarySensorEntity):

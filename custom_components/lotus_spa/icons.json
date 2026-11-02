@@ -295,6 +295,9 @@
       },
       "abendlicht": {
         "default": "mdi:weather-sunset"
+      },
+      "boost_sonne": {
+        "default": "mdi:solar-power"
       }
     },
     "time": {
