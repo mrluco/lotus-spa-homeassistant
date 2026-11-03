@@ -265,7 +265,7 @@
         "name": "Power (estimated)"
       },
       "kosten_heute": {
-        "name": "Cost today"
+        "name": "Cost today (estimated)"
       },
       "empfang": {
         "name": "Wi-Fi reception",
@@ -309,7 +309,7 @@
         "name": "Solar share today"
       },
       "kosten_jahr": {
-        "name": "Cost this year"
+        "name": "Cost this year (estimated)"
       },
       "sonne_jahr": {
         "name": "Solar this year (estimated)"

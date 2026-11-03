@@ -28,7 +28,7 @@
 - **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm um“ beim Aufheizen.
 - **Planen:** Badezeiten, Filterzeiten und Solar-Betriebsart. Eine Änderung in Home Assistant ist dieselbe wie in der App.
 - **Pflegen:** Pflegelauf mit Dauer, Wartungspause, Wartungsaufgaben mit Termin und Knopf „erledigt“.
-- **Verbrauch:** Energie für das Energie-Dashboard, Leistung und Kosten von heute. Beckeninhalt und Strompreis kannst du hier ändern.
+- **Verbrauch:** Energie für das Energie-Dashboard, Leistung und geschätzte Kosten von heute. Beckeninhalt und Strompreis kannst du hier ändern.
 - **Lotus Box und Konto:** Verbindung und WLAN-Empfang der Box, dein Abo und bis wann es gilt.
 
 Schalten kannst du nur, was du auch in der App schalten darfst. Jeder Befehl steht im Protokoll deiner Anlage mit „Home Assistant“.
@@ -65,7 +65,7 @@ Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Ei
 | Wartung | je Aufgabe aus der App: nächster Termin, ob sie fällig ist, und ein Knopf „erledigt“; ruht eine Erinnerung deiner Steuerung (zum Beispiel bei chlorfreier Pflege), steht das mit dem Grund dabei; hat deine Steuerung ihre Erinnerungen noch nicht gemeldet, steht dort, was du tun kannst |
 | Außentemperatur | der Wert aus der App (Deutscher Wetterdienst) |
 | Warm um | wann dein Wasser warm ist, solange geheizt wird |
-| Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt, wenn deine Steuerung nicht misst) |
+| Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt) |
 | Beckeninhalt, Strompreis | ansehen und ändern wie in der App; eine Änderung gilt auch dort |
 | Lotus Box | nur wenn dein Spa über eine Lotus Box verbunden ist: Verbindung und WLAN-Empfang, dazu WLAN-Name und Signal, soweit du sie in der App siehst |
 | Energie, Sonne und Netz heute, Sonnenanteil, Kosten und Sonne dieses Jahr | wie die Verbrauchsseite der App, geschätzt |

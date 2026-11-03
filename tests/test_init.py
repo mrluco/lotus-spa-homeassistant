@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.6"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.7"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -643,13 +643,24 @@ async def test_box_ohne_veraltetes_via_device(
     assert "via_device" not in caplog.text
 
 
+async def test_kosten_id_bleibt(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    register = er.async_get(hass)
+    for schluessel_, alt_ in (("kosten_heute", "mein_spa_kosten_heute"), ("kosten_jahr", "mein_spa_kosten_dieses_jahr")):
+        register.async_get_or_create("sensor", DOMAIN, f"{GERAET}_{schluessel_}", suggested_object_id=alt_, config_entry=eintrag)
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(energie={"kwh": 1.0, "w": 100, "kosten_heute": 1.84, "geschaetzt": True}))
+    zustand = hass.states.get("sensor.mein_spa_kosten_heute")
+    assert zustand is not None and zustand.state == "1.84" and zustand.attributes["friendly_name"] == "Mein Spa Kosten heute (geschätzt)"
+    assert hass.states.get("sensor.mein_spa_kosten_heute_geschatzt") is None
+    assert register.async_get("sensor.mein_spa_kosten_dieses_jahr") is not None
+
+
 async def test_energie_und_aussen(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     energie = {"kwh": 123.456, "w": 2800, "kosten_heute": 1.84, "geschaetzt": True}
     await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(energie=energie, warm_um={"zeit": "2026-10-30T18:40:00+01:00"}))
     zaehler = hass.states.get("sensor.mein_spa_energie_geschatzt")
     assert zaehler.state == "123.456" and zaehler.attributes["state_class"] == "total_increasing" and zaehler.attributes["unit_of_measurement"] == "kWh"
     assert hass.states.get("sensor.mein_spa_leistung_geschatzt").state == "2800.0"
-    assert hass.states.get("sensor.mein_spa_kosten_heute").state == "1.84"
+    assert hass.states.get("sensor.mein_spa_kosten_heute_geschatzt").state == "1.84"
     assert hass.states.get("sensor.mein_spa_aussentemperatur").attributes["attribution"] == "Deutscher Wetterdienst"
     assert hass.states.get("sensor.mein_spa_warm_um").state == "2026-10-30T17:40:00+00:00"
     aioclient_mock.clear_requests()
@@ -662,7 +673,7 @@ async def test_energie_und_aussen(hass: HomeAssistant, eintrag: MockConfigEntry,
 async def test_ohne_recht_keine_energie(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     await _einrichten(hass, eintrag, aioclient_mock)
     alle = {s_.entity_id for s_ in hass.states.async_all()}
-    assert not any(e_.endswith(("_energie_geschatzt", "_leistung_geschatzt", "_kosten_heute", "_warm_um")) for e_ in alle)
+    assert not any(e_.endswith(("_energie_geschatzt", "_leistung_geschatzt", "_kosten_heute_geschatzt", "_warm_um")) for e_ in alle)
     assert not any(e_.startswith("number.") for e_ in alle)
 
 
@@ -917,7 +928,7 @@ async def test_energie_sonne_netz(hass: HomeAssistant, eintrag: MockConfigEntry,
     assert hass.states.get("sensor.mein_spa_sonne_heute_geschatzt").state == "1.0"
     assert hass.states.get("sensor.mein_spa_netz_heute_geschatzt").state == "3.0"
     assert hass.states.get("sensor.mein_spa_sonnenanteil_heute").state == "25.0"
-    kosten = hass.states.get("sensor.mein_spa_kosten_dieses_jahr")
+    kosten = hass.states.get("sensor.mein_spa_kosten_dieses_jahr_geschatzt")
     assert kosten.state == "36.12" and kosten.attributes["state_class"] == "total" and kosten.attributes["unit_of_measurement"] == "EUR"
     aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, json=stand_beispiel(energie={**energie, "kwh_heute": 0.0, "sonne_heute": 0.0, "netz_heute": 0.0, "sonnenanteil_heute": None}))
@@ -927,7 +938,7 @@ async def test_energie_sonne_netz(hass: HomeAssistant, eintrag: MockConfigEntry,
     aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, json=stand_beispiel(energie={}))
     await _naechster_abruf(hass)
-    assert hass.states.get("sensor.mein_spa_kosten_dieses_jahr").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.mein_spa_kosten_dieses_jahr_geschatzt").state == STATE_UNAVAILABLE
 
 
 async def test_energie_tage(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

@@ -72,6 +72,17 @@ def test_uebersetzungen_wie_hassfest() -> None:
             assert all(SCHLUESSEL.match(t_) for t_ in pfad.split(".")[1:-1] if t_ not in ("state", "state_attributes", "name")), (sprache, pfad)
 
 
+def test_kosten_geschaetzt() -> None:
+    de = json.loads((PAKET / "translations" / "de.json").read_text(encoding="utf-8"))["entity"]["sensor"]
+    en = json.loads((PAKET / "translations" / "en.json").read_text(encoding="utf-8"))["entity"]["sensor"]
+    assert de["kosten_heute"]["name"] == "Kosten heute (geschätzt)" and de["kosten_jahr"]["name"] == "Kosten dieses Jahr (geschätzt)"
+    assert en["kosten_heute"]["name"] == "Cost today (estimated)" and en["kosten_jahr"]["name"] == "Cost this year (estimated)"
+    for sprache_, daten_, wort_ in (("de", de, "geschätzt"), ("en", en, "estimated")):
+        for schluessel_, eintrag_ in daten_.items():
+            if schluessel_.startswith("kosten"):
+                assert wort_ in eintrag_["name"], (sprache_, schluessel_)
+
+
 def test_markenbild() -> None:
     for datei, kante in (("icon.png", 256), ("icon@2x.png", 512)):
         kopf = (PAKET / "brand" / datei).read_bytes()[:24]

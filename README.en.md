@@ -28,7 +28,7 @@
 - **Status:** water temperature, outdoor temperature, filtering, messages with the text from the app, "Warm at" while heating up.
 - **Schedules:** bathing times, filter times and solar mode. A change in Home Assistant is the same as in the app.
 - **Care:** care run with duration, maintenance pause, maintenance tasks with due date and a "done" button.
-- **Consumption:** energy for the energy dashboard, power and today's cost. You can change pool volume and electricity price here.
+- **Consumption:** energy for the energy dashboard, power and today's estimated cost. You can change pool volume and electricity price here.
 - **Lotus Box and account:** connection and Wi-Fi reception of the box, your subscription and its end date.
 
 You can only switch what you may switch in the app. Every command appears in your spa's log with "Home Assistant".

@@ -265,7 +265,7 @@
         "name": "Leistung (geschätzt)"
       },
       "kosten_heute": {
-        "name": "Kosten heute"
+        "name": "Kosten heute (geschätzt)"
       },
       "empfang": {
         "name": "WLAN-Empfang",
@@ -309,7 +309,7 @@
         "name": "Sonnenanteil heute"
       },
       "kosten_jahr": {
-        "name": "Kosten dieses Jahr"
+        "name": "Kosten dieses Jahr (geschätzt)"
       },
       "sonne_jahr": {
         "name": "Sonne dieses Jahr (geschätzt)"
