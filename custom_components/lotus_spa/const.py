@@ -20,7 +20,7 @@ HINWEIS_ABO: Final = "abo_noetig"
 
 PFLEGELAUF_AUS: Final = "aus"
 
-VERSION: Final = "0.3.8"
+VERSION: Final = "0.3.9"
 HERSTELLER: Final = "Lotus"
 
 LESEN_AN_AUS: Final = {

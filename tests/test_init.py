@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.8"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.9"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -810,6 +810,25 @@ async def test_urlaub_absenkung_abendlicht(hass: HomeAssistant, eintrag: MockCon
         {"geraet": GERAET, "was": "urlaub", "wahl": "an"}, {"geraet": GERAET, "was": "urlaub", "wahl": "28.0"},
         {"geraet": GERAET, "was": "absenkung", "wahl": "auto"}, {"geraet": GERAET, "was": "absenkung", "wahl": "3.5"},
         {"geraet": GERAET, "was": "abendlicht", "wahl": "aus"}]
+
+
+async def test_badewarm_regler(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(badewarm={"wert": 38.0, "unten": 15.0, "oben": 40.0}))
+    badewarm = hass.states.get("number.mein_spa_badewarm")
+    assert badewarm.state == "38.0" and badewarm.attributes["min"] == 15.0 and badewarm.attributes["max"] == 40.0 and badewarm.attributes["step"] == 0.5
+    assert hass.states.get("climate.mein_spa").attributes["temperature"] == 38.0
+    await hass.services.async_call("number", "set_value", {"entity_id": "number.mein_spa_badewarm", "value": 38}, blocking=True)
+    await hass.services.async_call("number", "set_value", {"entity_id": "number.mein_spa_badewarm", "value": 37.5}, blocking=True)
+    await hass.services.async_call("climate", "set_temperature", {"entity_id": "climate.mein_spa", "temperature": 39}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "badewarm", "wert": 37.5}, {"geraet": GERAET, "was": "soll", "wert": 39.0}]
+
+
+async def test_badewarm_nur_wenn_lotus_regelt(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock)
+    assert hass.states.get("number.mein_spa_badewarm") is None
+    assert not any(e_.endswith("_badewarm") for e_ in (s_.entity_id for s_ in hass.states.async_all()))
+    await hass.services.async_call("climate", "set_temperature", {"entity_id": "climate.mein_spa", "temperature": 39}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "soll", "wert": 39.0}]
 
 
 async def test_absenkung_im_urlaub_ohne_zahl(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

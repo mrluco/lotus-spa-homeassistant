@@ -26,6 +26,8 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
             neu.append(LotusUrlaubsziel(koordinator, g_))
         if isinstance(daten.get("absenkung"), dict):
             neu.append(LotusAbsenkung(koordinator, g_))
+        if isinstance(daten.get("badewarm"), dict):
+            neu.append(LotusBadewarm(koordinator, g_))
     hinzufuegen(neu)
 
 
@@ -105,6 +107,43 @@ class LotusUrlaubsziel(LotusEntitaet, NumberEntity):
         if self.native_value is not None and abs(float(value) - self.native_value) < 1e-9:
             return
         await senden(self, "urlaub", wahl=f"{float(value):.1f}")
+
+
+class LotusBadewarm(LotusEntitaet, NumberEntity):
+    _attr_translation_key = "badewarm"
+    _attr_device_class = NumberDeviceClass.TEMPERATURE
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+    _attr_native_step = 0.5
+    _attr_mode = NumberMode.BOX
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
+        super().__init__(koordinator, geraet, "badewarm")
+
+    @property
+    def badewarm(self) -> dict:
+        return self.daten.get("badewarm") or {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and isinstance(self.daten.get("badewarm"), dict)
+
+    @property
+    def native_min_value(self) -> float:
+        return float(self.badewarm.get("unten") or 15.0)
+
+    @property
+    def native_max_value(self) -> float:
+        return float(self.badewarm.get("oben") or 40.0)
+
+    @property
+    def native_value(self) -> float | None:
+        wert = self.badewarm.get("wert")
+        return float(wert) if isinstance(wert, (int, float)) else None
+
+    async def async_set_native_value(self, value: float) -> None:
+        if self.native_value is not None and abs(float(value) - self.native_value) < 1e-9:
+            return
+        await senden(self, "badewarm", wert=round(float(value) * 2) / 2)
 
 
 class LotusAbsenkung(LotusEntitaet, NumberEntity):

@@ -361,6 +361,9 @@
       },
       "absenkung": {
         "name": "Setback"
+      },
+      "badewarm": {
+        "name": "Bath-warm"
       }
     }
   },

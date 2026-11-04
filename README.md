@@ -24,7 +24,7 @@
 
 ## Was du mit dem Abo bekommst
 
-- **Bedienen:** Wunschtemperatur, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
+- **Bedienen:** Wunschtemperatur, Badewarm, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
 - **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm um“ beim Aufheizen.
 - **Planen:** Badezeiten, Filterzeiten und Solar-Betriebsart. Eine Änderung in Home Assistant ist dieselbe wie in der App.
 - **Pflegen:** Pflegelauf mit Dauer, Wartungspause, Wartungsaufgaben mit Termin und Knopf „erledigt“.
@@ -40,7 +40,8 @@ Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Ei
 
 | Entität | Was sie zeigt oder tut |
 |---|---|
-| Thermostat (heißt wie dein Spa) | Wassertemperatur, Wunschtemperatur, ob gerade geheizt wird |
+| Thermostat (heißt wie dein Spa) | Wassertemperatur, Wunschtemperatur, ob gerade geheizt wird; die Wunschtemperatur geht sofort an die Steuerung, wie das Wählrad der App |
+| Badewarm | die Temperatur für die Badezeiten, solange Lotus die Temperatur regelt; dieselbe Zahl wie in der Inbetriebnahme der App |
 | Pumpen und Blower | an und aus; eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“ an (Einschalten = erste Stufe) |
 | Licht | an und aus |
 | Heizmodus | die Modi deiner Steuerung, wie in der App; auch am Thermostat als Voreinstellung |

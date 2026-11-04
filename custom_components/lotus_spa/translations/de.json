@@ -361,6 +361,9 @@
       },
       "absenkung": {
         "name": "Absenkung"
+      },
+      "badewarm": {
+        "name": "Badewarm"
       }
     }
   },

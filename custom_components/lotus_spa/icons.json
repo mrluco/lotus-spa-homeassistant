@@ -377,6 +377,9 @@
       },
       "absenkung": {
         "default": "mdi:thermometer-minus"
+      },
+      "badewarm": {
+        "default": "mdi:thermometer-water"
       }
     }
   }
