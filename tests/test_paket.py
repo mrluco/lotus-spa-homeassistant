@@ -72,6 +72,22 @@ def test_uebersetzungen_wie_hassfest() -> None:
             assert all(SCHLUESSEL.match(t_) for t_ in pfad.split(".")[1:-1] if t_ not in ("state", "state_attributes", "name")), (sprache, pfad)
 
 
+def test_reparaturhinweis_sachlich() -> None:
+    for sprache in ("de", "en"):
+        daten = json.loads((PAKET / "translations" / f"{sprache}.json").read_text(encoding="utf-8"))
+        issues = daten["issues"]
+        assert "abo_funktionen" not in json.dumps(daten), sprache
+        assert "{funktionen}" in issues["abo_noetig_funktionen"]["description"] and "{funktionen}" not in issues["abo_noetig"]["description"], sprache
+        assert issues["abo_noetig_funktionen"]["title"] == issues["abo_noetig"]["title"]
+        assert issues["abo_noetig_funktionen"]["description"].startswith(issues["abo_noetig"]["description"]), sprache
+        for k_ in ("abo_noetig", "abo_noetig_funktionen", "kein_recht"):
+            text = issues[k_]["title"] + " " + issues[k_]["description"]
+            assert "!" not in text and "€" not in text and not re.search(r"(?i)\b(mehr|more|jetzt|now|exklusiv|exclusive)\b", text), (sprache, k_)
+        for pfad, text in _texte({k_: daten.get(k_) or {} for k_ in ("config", "options")}):
+            if "reauth" in pfad or not pfad.startswith("config.abort."):
+                assert not URL.search(text) and not re.search(r"\{\w*_url\}", text), (sprache, pfad)
+
+
 def test_kosten_geschaetzt() -> None:
     de = json.loads((PAKET / "translations" / "de.json").read_text(encoding="utf-8"))["entity"]["sensor"]
     en = json.loads((PAKET / "translations" / "en.json").read_text(encoding="utf-8"))["entity"]["sensor"]

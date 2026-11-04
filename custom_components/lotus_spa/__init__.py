@@ -32,6 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry) -> b
     umsetzung = await config_entry_oauth2_flow.async_get_config_entry_implementation(hass, eintrag)
     sitzung = config_entry_oauth2_flow.OAuth2Session(hass, eintrag, umsetzung)
     koordinator = LotusKoordinator(hass, eintrag, LotusApi(sitzung, VERSION))
+    ir.async_delete_issue(hass, DOMAIN, f"{HINWEIS_FUNKTIONEN}_{eintrag.entry_id}")
     await koordinator.async_config_entry_first_refresh()
     eintrag.runtime_data = koordinator
     geraete = dr.async_get(hass)

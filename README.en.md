@@ -56,7 +56,7 @@ You also find the buttons in the Lotus app under Account › Home Assistant.
 
 ## Subscription
 
-Home Assistant is part of the Lotus subscription. When the subscription ends, Home Assistant shows your spa as unavailable and your automations switch nothing during that time. Shortly before the end and when a payment is open, a notice appears under Settings › Repairs. With a valid subscription everything continues right away.
+Home Assistant is part of the Lotus subscription. When the subscription ends, Home Assistant shows your spa as unavailable and your automations switch nothing during that time. Shortly before the end and when a payment is open, a notice appears under Settings › Repairs. With a valid subscription everything continues within 5 minutes.
 
 You can disconnect at any time in the Lotus app under Account › Home Assistant. A connection unused for 90 days is removed by Lotus.
 

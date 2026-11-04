@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.7"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.8"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -217,22 +217,41 @@ async def test_befehl_zu_oft(hass: HomeAssistant, eintrag: MockConfigEntry, aioc
 
 
 async def test_abo_endet_und_kommt_wieder(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
-    await _einrichten(hass, eintrag, aioclient_mock)
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(konto={"art": "abo", "bis": "2026-11-03", "hinweis": None}))
+    assert hass.states.get("sensor.lotus_konto_abo").state == "abo"
     aioclient_mock.clear_requests()
-    aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo.", "abo_url": "https://app.lotusswimspa.de/abo"})
+    aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo.", "abo_url": "https://app.lotusswimspa.de/abo",
+                                                "konto": {"art": "ohne_abo", "bis": "2026-11-03"}})
     await _naechster_abruf(hass)
     assert hass.states.get("climate.mein_spa").state == STATE_UNAVAILABLE
     assert hass.states.get("switch.mein_spa_pumpe_2").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.mein_spa_wassertemperatur").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.lotus_konto_abo").state == "ohne_abo"
+    assert hass.states.get("sensor.lotus_konto_abo_gultig_bis").state == "2026-11-03"
     hinweis = ir.async_get(hass).async_get_issue(DOMAIN, f"{HINWEIS_ABO}_{eintrag.entry_id}")
     assert hinweis is not None and hinweis.learn_more_url == "https://app.lotusswimspa.de/abo" and hinweis.severity == ir.IssueSeverity.ERROR
     assert not hass.config_entries.flow.async_progress()
-    assert eintrag.runtime_data.update_interval == timedelta(minutes=15)
+    assert eintrag.runtime_data.update_interval == timedelta(minutes=5)
     aioclient_mock.clear_requests()
-    aioclient_mock.get(STAND, json=stand_beispiel())
+    aioclient_mock.get(STAND, json=stand_beispiel(konto={"art": "abo", "bis": "2027-11-03", "hinweis": None}))
     await _naechster_abruf(hass, 16)
     assert hass.states.get("climate.mein_spa").state == "heat"
+    assert hass.states.get("sensor.lotus_konto_abo").state == "abo"
+    assert hass.states.get("sensor.lotus_konto_abo_gultig_bis").state == "2027-11-03"
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HINWEIS_ABO}_{eintrag.entry_id}") is None
     assert eintrag.runtime_data.update_interval == timedelta(seconds=60)
+
+
+async def test_abo_endet_alte_plattform(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(konto={"art": "abo", "bis": "2026-11-03", "hinweis": None}))
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo."})
+    await _naechster_abruf(hass)
+    assert hass.states.get("climate.mein_spa").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.lotus_konto_abo").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.lotus_konto_abo_gultig_bis").state == STATE_UNAVAILABLE
+    assert eintrag.runtime_data.konto_ohne_abo is False
+    assert _befehle(aioclient_mock) == []
 
 
 async def test_anmeldung_ungueltig(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
@@ -640,7 +659,7 @@ async def test_box_ohne_veraltetes_via_device(
     await hass.async_block_till_done()
     assert len(dr.async_entries_for_config_entry(register, eintrag.entry_id)) == vorher == 2
     assert register.async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id).via_device_id == box_geraet.id
-    assert "via_device" not in caplog.text
+    assert "via_device" not in caplog.text.replace("test_box_ohne_veraltetes_via_device", "")
 
 
 async def test_kosten_id_bleibt(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
@@ -812,30 +831,46 @@ async def test_ohne_kachel_keine_einstellung(hass: HomeAssistant, eintrag: MockC
 
 
 
-async def test_abo_funktionen_hinweis(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+def _lotus_hinweise(hass: HomeAssistant) -> list[str]:
+    return sorted(k_[1] for k_ in ir.async_get(hass).issues if k_[0] == DOMAIN)
+
+
+async def test_abo_hinweis_mit_funktionen(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    alt = f"abo_funktionen_{eintrag.entry_id}"
+    ir.async_create_issue(hass, DOMAIN, alt, is_fixable=False, severity=ir.IssueSeverity.WARNING, translation_key="abo_noetig")
+    assert ir.async_get(hass).async_get_issue(DOMAIN, alt) is not None
     await _einrichten(hass, eintrag, aioclient_mock)
-    kennung = f"abo_funktionen_{eintrag.entry_id}"
-    assert ir.async_get(hass).async_get_issue(DOMAIN, kennung) is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, alt) is None and _lotus_hinweise(hass) == []
+    kennung = f"{HINWEIS_ABO}_{eintrag.entry_id}"
     aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo.",
                                                 "fehlt": ["urlaub", "absenkung", "warm_um", "unbekannt"]})
     await _naechster_abruf(hass)
+    assert _lotus_hinweise(hass) == [kennung]
     hinweis = ir.async_get(hass).async_get_issue(DOMAIN, kennung)
-    assert hinweis is not None and hinweis.severity == ir.IssueSeverity.WARNING and URL(hinweis.learn_more_url).fragment == "kontoabo"
+    assert hinweis.severity == ir.IssueSeverity.ERROR and hinweis.translation_key == "abo_noetig_funktionen" and URL(hinweis.learn_more_url).path == "/abo"
     assert hinweis.translation_placeholders == {"funktionen": "Urlaubsmodus, Absenkung, Warm um"} and not hinweis.is_fixable
     assert _befehle(aioclient_mock) == []
     aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo."})
+    await _naechster_abruf(hass, 16)
+    hinweis = ir.async_get(hass).async_get_issue(DOMAIN, kennung)
+    assert _lotus_hinweise(hass) == [kennung] and hinweis.translation_key == "abo_noetig" and not hinweis.translation_placeholders
+    aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, json=stand_beispiel())
     await _naechster_abruf(hass, 16)
-    assert ir.async_get(hass).async_get_issue(DOMAIN, kennung) is None
+    assert _lotus_hinweise(hass) == []
 
 
-async def test_kein_recht_ohne_funktionen_hinweis(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+async def test_kein_recht_hinweis_unveraendert(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     await _einrichten(hass, eintrag, aioclient_mock)
     aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "kein_recht", "text": "Nicht freigeschaltet.", "fehlt": ["urlaub"]})
     await _naechster_abruf(hass)
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"abo_funktionen_{eintrag.entry_id}") is None
+    kennung = f"{HINWEIS_ABO}_{eintrag.entry_id}"
+    hinweis = ir.async_get(hass).async_get_issue(DOMAIN, kennung)
+    assert _lotus_hinweise(hass) == [kennung] and hinweis.translation_key == "kein_recht" and not hinweis.translation_placeholders
+    assert hass.states.get("climate.mein_spa").state == STATE_UNAVAILABLE
 
 
 def _abrufe(aioclient_mock: AiohttpClientMocker) -> int:

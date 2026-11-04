@@ -100,7 +100,7 @@ Die Knöpfe findest du auch in der Lotus-App unter Konto › Home Assistant.
 
 ## Abo
 
-Home Assistant gehört zum Lotus-Abo. Endet das Abo, zeigt Home Assistant deinen Spa als „nicht verfügbar“, und deine Automationen schalten in dieser Zeit nichts. Kurz vor dem Ablauf und bei einer offenen Zahlung steht ein Hinweis unter Einstellungen › Reparaturen. Mit einem gültigen Abo geht es sofort weiter.
+Home Assistant gehört zum Lotus-Abo. Endet das Abo, zeigt Home Assistant deinen Spa als „nicht verfügbar“, und deine Automationen schalten in dieser Zeit nichts. Kurz vor dem Ablauf und bei einer offenen Zahlung steht ein Hinweis unter Einstellungen › Reparaturen. Mit einem gültigen Abo geht es spätestens nach 5 Minuten weiter.
 
 Trennen kannst du die Verbindung jederzeit in der Lotus-App unter Konto › Home Assistant. Eine Verbindung, die 90 Tage nicht genutzt wird, löst Lotus von selbst.
 

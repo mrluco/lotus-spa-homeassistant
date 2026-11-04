@@ -25,11 +25,13 @@ class LotusAnmeldungAbgelaufen(LotusFehler):
 
 class LotusAboNoetig(LotusFehler):
 
-    def __init__(self, text: str = "", abo_url: str = ABO_URL, zugang: str = "abo_noetig", fehlt: list[str] | None = None) -> None:
+    def __init__(self, text: str = "", abo_url: str = ABO_URL, zugang: str = "abo_noetig", fehlt: list[str] | None = None,
+                 konto: dict[str, Any] | None = None) -> None:
         super().__init__(text)
         self.abo_url = abo_url
         self.zugang = zugang
         self.fehlt = list(fehlt or [])
+        self.konto = dict(konto) if isinstance(konto, dict) and konto else None
 
 
 class LotusNichtGefunden(LotusFehler):
@@ -104,7 +106,8 @@ async def auswerten(antwort: ClientResponse) -> dict[str, Any]:
         raise LotusAnmeldungAbgelaufen(text)
     if status == 402:
         raise LotusAboNoetig(text, str(daten.get("abo_url") or ABO_URL), str(daten.get("zugang") or "abo_noetig"),
-                             [str(x_) for x_ in (daten.get("fehlt") or []) if isinstance(x_, str)])
+                             [str(x_) for x_ in (daten.get("fehlt") or []) if isinstance(x_, str)],
+                             daten.get("konto") if isinstance(daten.get("konto"), dict) else None)
     if status == 404:
         raise LotusNichtGefunden(text)
     if status == 409:

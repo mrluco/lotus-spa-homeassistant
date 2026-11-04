@@ -369,7 +369,7 @@
       "message": "The connection to your Lotus account is no longer valid. Please sign in again."
     },
     "abo_noetig": {
-      "message": "Home Assistant is part of the Lotus subscription. With a valid subscription your values and switches are back right away."
+      "message": "Home Assistant is part of the Lotus subscription. With a valid subscription your values and switches are back within 5 minutes."
     },
     "kein_recht": {
       "message": "This is not enabled for your account in the Lotus app."
@@ -402,7 +402,11 @@
   "issues": {
     "abo_noetig": {
       "title": "Lotus subscription for Home Assistant",
-      "description": "Home Assistant is part of the Lotus subscription. While no subscription is active, Home Assistant shows your spa as unavailable and your automations do not switch anything. With a valid subscription everything continues right away."
+      "description": "Home Assistant is part of the Lotus subscription. While no subscription is active, Home Assistant shows your spa as unavailable and your automations do not switch anything. With a valid subscription everything continues within 5 minutes."
+    },
+    "abo_noetig_funktionen": {
+      "title": "Lotus subscription for Home Assistant",
+      "description": "Home Assistant is part of the Lotus subscription. While no subscription is active, Home Assistant shows your spa as unavailable and your automations do not switch anything. With a valid subscription everything continues within 5 minutes. The subscription also runs these system optimisations: {funktionen}."
     },
     "kein_recht": {
       "title": "Home Assistant not enabled",
@@ -415,10 +419,6 @@
     "zahlung": {
       "title": "Payment for your Lotus subscription is open",
       "description": "The last payment has not arrived yet. Please take a quick look at My subscription in Lotus and everything continues as usual."
-    },
-    "abo_funktionen": {
-      "title": "More with the subscription",
-      "description": "With the Lotus subscription, Home Assistant also gives you: {funktionen}. Your subscription is under Learn more."
     }
   }
 }

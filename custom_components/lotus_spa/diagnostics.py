@@ -16,6 +16,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, eintrag: Lotus
     return {
         "eintrag": async_redact_data(eintrag.as_dict(), SCHWAERZEN),
         "abo_noetig": koordinator.abo_noetig,
+        "konto_ohne_abo": koordinator.konto_ohne_abo,
         "letzter_abruf_ok": koordinator.last_update_success,
         "geraete": geraete,
     }

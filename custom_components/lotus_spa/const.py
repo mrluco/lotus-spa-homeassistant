@@ -14,13 +14,13 @@ KOPF_FASSUNG: Final = "X-Lotus-Integration"
 CLIENT_ID: Final = "lotus-spa-homeassistant"
 
 ABFRAGE: Final = timedelta(seconds=60)
-ABFRAGE_OHNE_ABO: Final = timedelta(minutes=15)
+ABFRAGE_OHNE_ABO: Final = timedelta(minutes=5)
 
 HINWEIS_ABO: Final = "abo_noetig"
 
 PFLEGELAUF_AUS: Final = "aus"
 
-VERSION: Final = "0.3.7"
+VERSION: Final = "0.3.8"
 HERSTELLER: Final = "Lotus"
 
 LESEN_AN_AUS: Final = {
@@ -42,6 +42,7 @@ KEINE_MELDUNG: Final = "Keine Meldung"
 KONTO_URL: Final = str(URL(BASIS_URL).with_path("/konto").with_fragment("kontoabo"))
 HINWEIS_ABLAUF: Final = "abo_ablauf"
 HINWEIS_ZAHLUNG: Final = "zahlung"
+HINWEIS_ABO_FUNKTIONEN: Final = "abo_noetig_funktionen"
 HINWEIS_FUNKTIONEN: Final = "abo_funktionen"
 NACHLESEN_S: Final = (2.0, 3.0, 5.0)
 ABO_FUNKTIONEN: Final = {

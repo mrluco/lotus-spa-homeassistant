@@ -369,7 +369,7 @@
       "message": "Die Verbindung zu deinem Lotus-Konto gilt nicht mehr. Bitte melde dich erneut an."
     },
     "abo_noetig": {
-      "message": "Home Assistant gehört zum Lotus-Abo. Mit einem gültigen Abo sind deine Werte und Schalter sofort wieder da."
+      "message": "Home Assistant gehört zum Lotus-Abo. Mit einem gültigen Abo sind deine Werte und Schalter spätestens nach 5 Minuten wieder da."
     },
     "kein_recht": {
       "message": "Das ist für dein Konto in der Lotus-App nicht freigeschaltet."
@@ -402,7 +402,11 @@
   "issues": {
     "abo_noetig": {
       "title": "Lotus-Abo für Home Assistant",
-      "description": "Home Assistant gehört zum Lotus-Abo. Solange kein Abo gilt, zeigt Home Assistant deinen Spa als nicht verfügbar an, und deine Automationen schalten in dieser Zeit nichts. Mit einem gültigen Abo geht es sofort weiter."
+      "description": "Home Assistant gehört zum Lotus-Abo. Solange kein Abo gilt, zeigt Home Assistant deinen Spa als nicht verfügbar an, und deine Automationen schalten in dieser Zeit nichts. Mit einem gültigen Abo geht es spätestens nach 5 Minuten weiter."
+    },
+    "abo_noetig_funktionen": {
+      "title": "Lotus-Abo für Home Assistant",
+      "description": "Home Assistant gehört zum Lotus-Abo. Solange kein Abo gilt, zeigt Home Assistant deinen Spa als nicht verfügbar an, und deine Automationen schalten in dieser Zeit nichts. Mit einem gültigen Abo geht es spätestens nach 5 Minuten weiter. Mit dem Abo laufen außerdem diese Systemoptimierungen: {funktionen}."
     },
     "kein_recht": {
       "title": "Home Assistant nicht freigeschaltet",
@@ -415,10 +419,6 @@
     "zahlung": {
       "title": "Zahlung für dein Lotus-Abo offen",
       "description": "Die letzte Zahlung ist noch nicht angekommen. Bitte sieh kurz in Lotus unter „Mein Abo“ nach, dann läuft alles wie gewohnt weiter."
-    },
-    "abo_funktionen": {
-      "title": "Mit dem Abo gibt es mehr",
-      "description": "Mit dem Lotus-Abo hast du in Home Assistant auch: {funktionen}. Unter „Mehr erfahren“ findest du dein Abo."
     }
   }
 }

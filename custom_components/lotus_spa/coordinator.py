@@ -19,9 +19,9 @@ from .const import (
     DOMAIN,
     HINWEIS_ABLAUF,
     HINWEIS_ABO,
+    HINWEIS_ABO_FUNKTIONEN,
     HINWEIS_FUNKTIONEN,
     HINWEIS_ZAHLUNG,
-    KONTO_URL,
     NACHLESEN_S,
 )
 
@@ -39,6 +39,7 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self.api = api
         self.abo_noetig = False
         self.konto: dict[str, Any] | None = None
+        self.konto_ohne_abo = False
         self.box_geraete: dict[str, str] = {}
         self._nachlesen_lauf: asyncio.Task[None] | None = None
 
@@ -63,6 +64,9 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         except LotusAnmeldungAbgelaufen as err:
             raise ConfigEntryAuthFailed(translation_domain=DOMAIN, translation_key="anmeldung_abgelaufen") from err
         except LotusAboNoetig as err:
+            self.konto_ohne_abo = err.konto is not None
+            if err.konto is not None:
+                self.konto = err.konto
             self._abo_fehlt(err)
             raise UpdateFailed(translation_domain=DOMAIN, translation_key="abo_noetig") from err
         except LotusZuOft as err:
@@ -70,6 +74,7 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         except LotusFehler as err:
             raise UpdateFailed(translation_domain=DOMAIN, translation_key="nicht_erreichbar") from err
         self._abo_wieder_da()
+        self.konto_ohne_abo = False
         self.konto = stand.get("konto") if isinstance(stand.get("konto"), dict) else None
         self._konto_hinweise()
         geraete = stand.get("geraete")
@@ -80,6 +85,14 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             _LOGGER.info("Lotus Spa: ohne gültiges Abo keine Werte und keine Befehle")
         self.abo_noetig = True
         self.update_interval = ABFRAGE_OHNE_ABO
+        namen = ABO_FUNKTIONEN.get(self.hass.config.language[:2], ABO_FUNKTIONEN["de"])
+        fehlt = [namen[x_] for x_ in err.fehlt if x_ in namen] if err.zugang == "abo_noetig" else []
+        if err.zugang != "abo_noetig":
+            schluessel, platzhalter = "kein_recht", None
+        elif fehlt:
+            schluessel, platzhalter = HINWEIS_ABO_FUNKTIONEN, {"funktionen": ", ".join(fehlt)}
+        else:
+            schluessel, platzhalter = HINWEIS_ABO, None
         ir.async_create_issue(
             self.hass,
             DOMAIN,
@@ -88,24 +101,10 @@ class LotusKoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             is_persistent=False,
             severity=ir.IssueSeverity.ERROR,
             learn_more_url=err.abo_url,
-            translation_key=HINWEIS_ABO if err.zugang == "abo_noetig" else "kein_recht",
+            translation_key=schluessel,
+            translation_placeholders=platzhalter,
         )
-        namen = ABO_FUNKTIONEN.get(self.hass.config.language[:2], ABO_FUNKTIONEN["de"])
-        fehlt = [namen[x_] for x_ in err.fehlt if x_ in namen] if err.zugang == "abo_noetig" else []
-        if fehlt:
-            ir.async_create_issue(
-                self.hass,
-                DOMAIN,
-                f"{HINWEIS_FUNKTIONEN}_{self.config_entry.entry_id}",
-                is_fixable=False,
-                is_persistent=False,
-                severity=ir.IssueSeverity.WARNING,
-                learn_more_url=KONTO_URL,
-                translation_key=HINWEIS_FUNKTIONEN,
-                translation_placeholders={"funktionen": ", ".join(fehlt)},
-            )
-        else:
-            ir.async_delete_issue(self.hass, DOMAIN, f"{HINWEIS_FUNKTIONEN}_{self.config_entry.entry_id}")
+        ir.async_delete_issue(self.hass, DOMAIN, f"{HINWEIS_FUNKTIONEN}_{self.config_entry.entry_id}")
 
     def _abo_wieder_da(self) -> None:
         if self.abo_noetig:

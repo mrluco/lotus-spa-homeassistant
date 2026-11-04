@@ -473,7 +473,7 @@ class LotusKontoEntitaet(CoordinatorEntity[LotusKoordinator], SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool(self.konto)
+        return bool(self.konto) and (super().available or self.coordinator.konto_ohne_abo)
 
 
 class LotusKontoAbo(LotusKontoEntitaet):
