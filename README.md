@@ -5,7 +5,7 @@
 <p align="center">Dein Spa aus der Lotus-App in Home Assistant, mit denselben Rechten wie in der App.</p>
 
 <p align="center">
-<a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS Custom"></a>
+<a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Default-41BDF5.svg" alt="HACS Default"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/releases"><img src="https://img.shields.io/github/v/release/mrluco/lotus-spa-homeassistant" alt="Release"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="Lizenz"></a>
 </p>
@@ -91,8 +91,8 @@ Mit den beiden Knöpfen oben:
 
 Ohne Knöpfe:
 
-1. HACS öffnen › „Benutzerdefinierte Repositories“ › diese Adresse eintragen, Typ „Integration“.
-2. „Lotus Spa“ installieren und Home Assistant neu starten.
+1. HACS öffnen › nach „Lotus Spa“ suchen.
+2. „Lotus Spa“ herunterladen und Home Assistant neu starten.
 3. Einstellungen › Geräte & Dienste › „Integration hinzufügen“ › „Lotus Spa“.
 4. Die Lotus-Anmeldeseite öffnet sich. Melde dich an wie in der App und tippe auf „Verbinden“.
 5. Jeder Spa deines Kontos erscheint als eigenes Gerät.

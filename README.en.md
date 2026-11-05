@@ -5,7 +5,7 @@
 <p align="center">Your spa from the Lotus app in Home Assistant, with the same permissions as in the app.</p>
 
 <p align="center">
-<a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS Custom"></a>
+<a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-Default-41BDF5.svg" alt="HACS Default"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/releases"><img src="https://img.shields.io/github/v/release/mrluco/lotus-spa-homeassistant" alt="Release"></a>
 <a href="https://github.com/mrluco/lotus-spa-homeassistant/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrluco/lotus-spa-homeassistant" alt="License"></a>
 </p>
@@ -50,7 +50,7 @@ With the two buttons above:
 1. The first button opens the repository in HACS. Tap "Download", then restart Home Assistant.
 2. The second button starts the setup. Sign in on the Lotus page as in the app and tap "Connect".
 
-Without the buttons: add this repository in HACS as a custom repository of type "Integration", install "Lotus Spa", restart, then add the integration "Lotus Spa" under Settings › Devices & services.
+Without the buttons: search for "Lotus Spa" in HACS, download it, restart, then add the integration "Lotus Spa" under Settings › Devices & services.
 
 You also find the buttons in the Lotus app under Account › Home Assistant.
 
