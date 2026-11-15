@@ -70,6 +70,16 @@ def heizmodus_wert(daten: dict[str, Any], text: str) -> str | None:
     return next((str(m_["wert"]) for m_ in heizmodi(daten) if heizmodus_text(m_) == text), None)
 
 
+def wp_modi(daten: dict[str, Any], bekannt: tuple[str, ...]) -> list[str]:
+    stand = daten.get("waermepumpe") or {}
+    return [str(m_.get("wert") or "").lower() for m_ in (stand.get("modi") or []) if isinstance(m_, dict) and str(m_.get("wert") or "").lower() in bekannt]
+
+
+def wp_modus(daten: dict[str, Any], bekannt: tuple[str, ...]) -> str | None:
+    aktiv = str((daten.get("waermepumpe") or {}).get("aktiv") or "").lower()
+    return aktiv if aktiv in bekannt else None
+
+
 def betriebsarten(daten: dict[str, Any]) -> list[dict[str, str]]:
     betriebsart = daten.get("betriebsart") or {}
     return [m_ for m_ in (betriebsart.get("modi") or []) if isinstance(m_, dict)] if betriebsart.get("darf") else []

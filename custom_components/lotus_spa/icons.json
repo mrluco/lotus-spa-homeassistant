@@ -150,6 +150,9 @@
       "solar_betriebsart": {
         "default": "mdi:solar-power-variant"
       },
+      "waermepumpe_modus": {
+        "default": "mdi:heat-pump-outline"
+      },
       "soll_grund": {
         "default": "mdi:information-outline"
       },
@@ -233,11 +236,23 @@
       "solar_betriebsart": {
         "default": "mdi:solar-power-variant"
       },
+      "waermepumpe_modus": {
+        "default": "mdi:heat-pump-outline"
+      },
       "pflegelauf_dauer": {
         "default": "mdi:timer-cog-outline"
       },
       "absenkung": {
         "default": "mdi:thermometer-chevron-down"
+      },
+      "schwimmprogramm": {
+        "default": "mdi:swim"
+      },
+      "schwimmstufe": {
+        "default": "mdi:swim"
+      },
+      "schwimmbelastung": {
+        "default": "mdi:swim"
       }
     },
     "switch": {
@@ -298,6 +313,9 @@
       },
       "boost_sonne": {
         "default": "mdi:solar-power"
+      },
+      "schwimmen": {
+        "default": "mdi:swim"
       }
     },
     "time": {
@@ -380,6 +398,9 @@
       },
       "badewarm": {
         "default": "mdi:thermometer-water"
+      },
+      "schwimmzeit": {
+        "default": "mdi:timer-outline"
       }
     }
   }

@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.9"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.10"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -336,6 +336,72 @@ async def test_solar_betriebsart(hass: HomeAssistant, eintrag: MockConfigEntry, 
         await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_solar_betriebsart", "option": "beobachten"}, blocking=True)
     await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_solar_betriebsart", "option": "temperatur"}, blocking=True)
     assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "solar_modus", "modus": "temperatur"}]
+
+
+WP_STAND = {"aktiv": "HEAT_SAVER", "darf": True,
+            "modi": [{"wert": "HEAT_SAVER", "text": "Eco Heat"}, {"wert": "HEAT_W_BOOST", "text": "Smart Heat"}, {"wert": "INTERNAL_HEAT", "text": "Elektro"}]}
+
+
+async def test_waermepumpe_modus(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(waermepumpe=dict(WP_STAND)))
+    stand = hass.states.get("select.mein_spa_warmepumpe")
+    assert stand.state == "heat_saver" and stand.attributes["options"] == ["heat_saver", "heat_w_boost", "internal_heat"]
+    assert "sensor.mein_spa_warmepumpe" not in {s_.entity_id for s_ in hass.states.async_all()}
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_warmepumpe", "option": "heat_saver"}, blocking=True)
+    assert _befehle(aioclient_mock) == []
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_warmepumpe", "option": "chill"}, blocking=True)
+    assert _befehle(aioclient_mock) == []
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_warmepumpe", "option": "internal_heat"}, blocking=True)
+    assert _befehle(aioclient_mock) == [{"geraet": GERAET, "was": "waermepumpe_modus", "wahl": "INTERNAL_HEAT"}]
+
+
+async def test_waermepumpe_nur_anzeige_und_ohne(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(waermepumpe={**WP_STAND, "aktiv": "INTERNAL_HEAT", "darf": False}))
+    alle = {s_.entity_id for s_ in hass.states.async_all()}
+    assert "select.mein_spa_warmepumpe" not in alle
+    assert hass.states.get("sensor.mein_spa_warmepumpe").state == "internal_heat"
+
+
+async def test_ohne_waermepumpe_keine_auswahl(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel())
+    alle = {s_.entity_id for s_ in hass.states.async_all()}
+    assert not any("warmepumpe" in e_ for e_ in alle)
+    assert hass.states.get("select.mein_spa_heizmodus").state == "Standard"
+
+
+SCHWIMMEN = {"an": False, "pause": False, "programm": "manuell", "minuten": 20, "stufe": 3, "stufen": [1, 2, 3, 4], "belastung": "2", "rest_s": None,
+             "programme": [{"wert": "manuell", "text": "Manuell"}, {"wert": "0", "text": "Basis"}], "hoechststufe": 3, "darf": True,
+             "belastungen": [{"wert": "1", "text": "Leicht"}, {"wert": "2", "text": "Schwer"}]}
+
+
+async def test_schwimmen(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(schwimmen=dict(SCHWIMMEN)))
+    assert hass.states.get("switch.mein_spa_schwimmen").state == "off"
+    assert hass.states.get("switch.mein_spa_schwimmen").attributes["hoechststufe"] == 3
+    assert hass.states.get("select.mein_spa_schwimmprogramm").state == "Manuell"
+    assert hass.states.get("select.mein_spa_schwimmstufe").attributes["options"] == ["1", "2", "3", "4"]
+    assert hass.states.get("select.mein_spa_belastung_beim_schwimmen").state == "Schwer"
+    assert float(hass.states.get("number.mein_spa_schwimmzeit").state) == 20.0
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_schwimmstufe", "option": "3"}, blocking=True)
+    assert _befehle(aioclient_mock) == []
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_schwimmstufe", "option": "2"}, blocking=True)
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_schwimmprogramm", "option": "Basis"}, blocking=True)
+    await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_belastung_beim_schwimmen", "option": "Leicht"}, blocking=True)
+    await hass.services.async_call("number", "set_value", {"entity_id": "number.mein_spa_schwimmzeit", "value": 30}, blocking=True)
+    await hass.services.async_call("switch", "turn_on", {"entity_id": "switch.mein_spa_schwimmen"}, blocking=True)
+    await hass.services.async_call("switch", "turn_off", {"entity_id": "switch.mein_spa_schwimmen"}, blocking=True)
+    assert _befehle(aioclient_mock) == [
+        {"geraet": GERAET, "was": "schwimm_wahl", "stufe": 2}, {"geraet": GERAET, "was": "schwimm_wahl", "programm": "0"},
+        {"geraet": GERAET, "was": "schwimm_wahl", "belastung": "1"}, {"geraet": GERAET, "was": "schwimm_wahl", "minuten": 30},
+        {"geraet": GERAET, "was": "schwimmen", "an": True}, {"geraet": GERAET, "was": "schwimmen", "an": False}]
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call("select", "select_option", {"entity_id": "select.mein_spa_schwimmstufe", "option": "6"}, blocking=True)
+
+
+async def test_ohne_schwimmen_keine_entitaet(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(schwimmen={**SCHWIMMEN, "darf": False}))
+    assert not any("schwimm" in s_.entity_id for s_ in hass.states.async_all())
 
 
 async def test_solar_nur_anzeige(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

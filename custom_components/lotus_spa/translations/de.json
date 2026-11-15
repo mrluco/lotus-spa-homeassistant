@@ -139,6 +139,17 @@
           "temperatur": "Solar führt"
         }
       },
+      "waermepumpe_modus": {
+        "name": "Wärmepumpe",
+        "state": {
+          "heat_saver": "Eco Heat",
+          "heat_w_boost": "Smart Heat",
+          "auto_saver": "Eco Auto",
+          "auto_w_boost": "Smart Auto",
+          "chill": "Kühlung",
+          "internal_heat": "Elektro"
+        }
+      },
       "pflegelauf_dauer": {
         "name": "Pflegelauf Dauer",
         "state": {
@@ -156,6 +167,15 @@
           "an": "An",
           "auto": "Automatisch"
         }
+      },
+      "schwimmprogramm": {
+        "name": "Schwimmprogramm"
+      },
+      "schwimmstufe": {
+        "name": "Schwimmstufe"
+      },
+      "schwimmbelastung": {
+        "name": "Belastung beim Schwimmen"
       }
     },
     "switch": {
@@ -173,6 +193,17 @@
       },
       "boost_sonne": {
         "name": "Boost mit Sonne"
+      },
+      "schwimmen": {
+        "name": "Schwimmen",
+        "state_attributes": {
+          "restsekunden": {
+            "name": "Restsekunden"
+          },
+          "hoechststufe": {
+            "name": "Höchststufe"
+          }
+        }
       }
     },
     "sensor": {
@@ -201,6 +232,17 @@
           "beobachten": "Nur mitrechnen",
           "zeitplan": "Zeitplan führt",
           "temperatur": "Solar führt"
+        }
+      },
+      "waermepumpe_modus": {
+        "name": "Wärmepumpe",
+        "state": {
+          "heat_saver": "Eco Heat",
+          "heat_w_boost": "Smart Heat",
+          "auto_saver": "Eco Auto",
+          "auto_w_boost": "Smart Auto",
+          "chill": "Kühlung",
+          "internal_heat": "Elektro"
         }
       },
       "soll_grund": {
@@ -364,6 +406,9 @@
       },
       "badewarm": {
         "name": "Badewarm"
+      },
+      "schwimmzeit": {
+        "name": "Schwimmzeit"
       }
     }
   },

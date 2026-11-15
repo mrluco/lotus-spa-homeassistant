@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import ABO_ARTEN, ALT_FILTERUNG, DOMAIN, EMPFANG, KEINE_MELDUNG, LESEN_TEXT, SOLAR_MODI, WETTER_QUELLE
+from .const import ABO_ARTEN, ALT_FILTERUNG, DOMAIN, EMPFANG, KEINE_MELDUNG, LESEN_TEXT, SOLAR_MODI, WETTER_QUELLE, WP_MODI
 from .coordinator import LotusConfigEntry, LotusKoordinator
 from .entity import LotusBoxEntitaet, LotusEntitaet
 
@@ -33,6 +33,8 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
                 if isinstance(z_, dict) and z_.get("titel") in LESEN_TEXT]
         if daten.get("heizmodus") and not daten["heizmodus"].get("darf"):
             neu.append(LotusHeizmodusStand(koordinator, g_))
+        if daten.get("waermepumpe") and not daten["waermepumpe"].get("darf"):
+            neu.append(LotusWaermepumpeStand(koordinator, g_))
         neu.append(LotusSollGrund(koordinator, g_))
         neu.append(LotusFilterblock(koordinator, g_))
         if daten.get("solar") and not daten["solar"].get("darf"):
@@ -195,6 +197,20 @@ class LotusFilterblock(LotusEntitaet, SensorEntity):
         if grund:
             attribute["hinweis"] = str(grund)
         return attribute
+
+
+class LotusWaermepumpeStand(LotusEntitaet, SensorEntity):
+    _attr_translation_key = "waermepumpe_modus"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = list(WP_MODI)
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
+        super().__init__(koordinator, geraet, "waermepumpe_modus_stand")
+
+    @property
+    def native_value(self) -> str | None:
+        aktiv = str((self.daten.get("waermepumpe") or {}).get("aktiv") or "").lower()
+        return aktiv if aktiv in WP_MODI else None
 
 
 class LotusSolarStand(LotusEntitaet, SensorEntity):

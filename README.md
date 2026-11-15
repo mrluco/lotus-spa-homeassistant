@@ -45,6 +45,8 @@ Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Ei
 | Pumpen und Blower | an und aus; eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“ an (Einschalten = erste Stufe) |
 | Licht | an und aus |
 | Heizmodus | die Modi deiner Steuerung, wie in der App; auch am Thermostat als Voreinstellung |
+| Schwimmen, Schwimmprogramm, Schwimmstufe, Belastung, Schwimmzeit | die Gegenstromanlage starten und beenden und die Auswahl wie in der Schwimmkarte der App; eine in der App festgelegte Höchststufe gilt auch hier |
+| Wärmepumpe | der Modus deiner Wärmepumpe wie in der App, zum Beispiel Eco Heat, Smart Heat oder Elektro; nur an Spas, an denen die App ihn schalten lässt; schaltest du den Modus mit einer eigenen Automation, lass in der App „Boost mit Sonne“ aus, sonst stellen zwei Automatiken am selben Modus |
 | Pflegelauf | starten (pH plus, pH minus, Chlor/SWT, Sonstiges) und beenden; dazu „Pflegelauf Dauer“ für den nächsten Lauf und „Pflegelauf endet“ |
 | Wartungspause | anhalten und wieder starten wie in der App, mit „Wartungspause endet“; bei Frostgefahr startet sie nicht, der Frostschutz hat Vorrang |
 | Urlaubsmodus, Urlaubstemperatur | ein- und ausschalten und die Temperatur im Urlaub, wie die Kachel der App |

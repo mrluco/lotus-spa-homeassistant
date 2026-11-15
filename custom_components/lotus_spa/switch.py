@@ -26,6 +26,8 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         if daten.get("wartungspause"):
             neu.append(LotusWartungspause(koordinator, g_))
         neu += [LotusEinstellung(koordinator, g_, was) for was in ("urlaubsmodus", "abendlicht", "boost_sonne") if isinstance(daten.get(QUELLE[was]), dict)]
+        if (daten.get("schwimmen") or {}).get("darf"):
+            neu.append(LotusSchwimmen(koordinator, g_))
     hinzufuegen(neu)
 
 
@@ -130,6 +132,40 @@ class LotusWartungspause(LotusEntitaet, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self.befehl("wartungspause", an=False)
+
+
+class LotusSchwimmen(LotusEntitaet, SwitchEntity):
+    _attr_translation_key = "schwimmen"
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
+        super().__init__(koordinator, geraet, "schwimmen")
+
+    @property
+    def _stand(self) -> dict[str, Any]:
+        return self.daten.get("schwimmen") or {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._stand.get("darf"))
+
+    @property
+    def is_on(self) -> bool:
+        return bool(self._stand.get("an"))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, int]:
+        attribute: dict[str, int] = {}
+        if self._stand.get("an") and isinstance(self._stand.get("rest_s"), int):
+            attribute["restsekunden"] = int(self._stand["rest_s"])
+        if isinstance(self._stand.get("hoechststufe"), int):
+            attribute["hoechststufe"] = int(self._stand["hoechststufe"])
+        return attribute
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self.befehl("schwimmen", an=True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self.befehl("schwimmen", an=False)
 
 
 class LotusEinstellung(LotusEntitaet, SwitchEntity):
