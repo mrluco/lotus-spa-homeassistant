@@ -29,6 +29,7 @@ class LotusThermostat(LotusEntitaet, ClimateEntity):
     _attr_translation_key = "thermostat"
     _attr_hvac_modes = [HVACMode.HEAT]
     _attr_hvac_mode = HVACMode.HEAT
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_precision = PRECISION_TENTHS
     _attr_target_temperature_step = 0.5
@@ -56,12 +57,20 @@ class LotusThermostat(LotusEntitaet, ClimateEntity):
         await self.befehl(befehl, wahl=wert)
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         return _zahl(self.daten.get("ist"))
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         return _zahl(self.daten.get("soll"))
+
+    @property
+    def current_temperature(self) -> float | None:
+        return self.native_current_temperature
+
+    @property
+    def target_temperature(self) -> float | None:
+        return self.native_target_temperature
 
     @property
     def hvac_action(self) -> HVACAction:

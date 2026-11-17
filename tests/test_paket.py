@@ -104,3 +104,18 @@ def test_markenbild() -> None:
         kopf = (PAKET / "brand" / datei).read_bytes()[:24]
         assert kopf[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">II", kopf[16:24]) == (kante, kante)
 
+
+
+def test_thermostat_native_temperatur() -> None:
+    from custom_components.lotus_spa.climate import LotusThermostat
+
+    eigen = vars(LotusThermostat)
+    for native, alt in (("_attr_native_temperature_unit", "_attr_temperature_unit"), ("native_current_temperature", "current_temperature"),
+                        ("native_target_temperature", "target_temperature")):
+        assert native in eigen, native
+        assert alt in eigen, alt
+    t = LotusThermostat.__new__(LotusThermostat)
+    assert t._attr_native_temperature_unit == t._attr_temperature_unit == "°C"
+    for daten, ist, soll in (({"ist": "37.5", "soll": 38}, 37.5, 38.0), ({"ist": None, "soll": "x"}, None, None)):
+        type(t).daten = property(lambda self, d_=daten: d_)
+        assert (t.native_current_temperature, t.native_target_temperature) == (t.current_temperature, t.target_temperature) == (ist, soll)
