@@ -150,6 +150,31 @@
           "internal_heat": "Elektro"
         }
       },
+      "c8z_modus": {
+        "name": "Modus Wärmepumpe",
+        "state": {
+          "aus": "Aus",
+          "heizen": "Heizen",
+          "kuehlen": "Kühlen",
+          "beide": "Beides"
+        }
+      },
+      "c8z_heizstab": {
+        "name": "Heizstab",
+        "state": {
+          "aus": "Aus",
+          "auto": "Auto",
+          "immer": "Freigegeben"
+        }
+      },
+      "c8z_drehzahl": {
+        "name": "Drehzahl Wärmepumpe",
+        "state": {
+          "smart": "Auto",
+          "niedrig": "Niedrig",
+          "hoch": "Hoch"
+        }
+      },
       "pflegelauf_dauer": {
         "name": "Pflegelauf Dauer",
         "state": {
@@ -244,6 +269,66 @@
           "chill": "Kühlung",
           "internal_heat": "Elektro"
         }
+      },
+      "c8z_zustand": {
+        "name": "Wärmepumpe",
+        "state": {
+          "heizt": "Heizt",
+          "taut_ab": "Taut ab",
+          "pause": "Macht Pause",
+          "stoerung": "Störung",
+          "aus": "Aus",
+          "bereit": "Bereit"
+        }
+      },
+      "c8z_modus": {
+        "name": "Modus Wärmepumpe",
+        "state": {
+          "aus": "Aus",
+          "heizen": "Heizen",
+          "kuehlen": "Kühlen",
+          "beide": "Beides"
+        }
+      },
+      "c8z_heizstab": {
+        "name": "Heizstab",
+        "state": {
+          "aus": "Aus",
+          "auto": "Auto",
+          "immer": "Freigegeben"
+        }
+      },
+      "c8z_drehzahl": {
+        "name": "Drehzahl Wärmepumpe",
+        "state": {
+          "smart": "Auto",
+          "niedrig": "Niedrig",
+          "hoch": "Hoch"
+        }
+      },
+      "c8z_einlass": {
+        "name": "Wärmepumpe Einlass"
+      },
+      "c8z_auslass": {
+        "name": "Wärmepumpe Auslass"
+      },
+      "c8z_spreizung": {
+        "name": "Wärmepumpe Spreizung"
+      },
+      "c8z_luft": {
+        "name": "Luft an der Wärmepumpe"
+      },
+      "c8z_luefter": {
+        "name": "Wärmepumpe Lüfter"
+      },
+      "c8z_verdichter_hz": {
+        "name": "Wärmepumpe Verdichter"
+      },
+      "c8z_abtauungen_heute": {
+        "name": "Wärmepumpe Abtauungen heute"
+      },
+      "c8z_letzte_meldung": {
+        "name": "Wärmepumpe letzte Meldung"
       },
       "soll_grund": {
         "name": "Grund der Solltemperatur"

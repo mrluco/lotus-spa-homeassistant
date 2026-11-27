@@ -3,7 +3,15 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
-from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory, UnitOfEnergy, UnitOfPower, UnitOfTemperature
+from homeassistant.const import (
+    PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+    EntityCategory,
+    UnitOfEnergy,
+    UnitOfFrequency,
+    UnitOfPower,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -11,19 +19,26 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import ABO_ARTEN, ALT_FILTERUNG, DOMAIN, EMPFANG, KEINE_MELDUNG, LESEN_TEXT, SOLAR_MODI, WETTER_QUELLE, WP_MODI
+from .const import ABO_ARTEN, ALT_FILTERUNG, C8Z_WAHL, C8Z_ZUSTAENDE, DOMAIN, EMPFANG, KEINE_MELDUNG, LESEN_TEXT, SOLAR_MODI, WETTER_QUELLE, WP_MODI
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusBoxEntitaet, LotusEntitaet
+from .entity import LotusBoxEntitaet, LotusEntitaet, nachlegen, registriert
+from .schalter import c8z, c8z_aktiv, c8z_optionen, c8z_wahl
 
 PARALLEL_UPDATES = 0
 TEXT_MAX = 255
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
+    nachlegen(eintrag, hinzufuegen, finden)
+    if eintrag.runtime_data.konto is not None:
+        abo_bis_folgen(hass, eintrag, eintrag.runtime_data, hinzufuegen)
+
+
+def finden(koordinator: LotusKoordinator) -> list[SensorEntity]:
+    hass = koordinator.hass
     register = er.async_get(hass)
     neu: list[SensorEntity] = []
-    for g_, daten in koordinator.data.items():
+    for g_, daten in (koordinator.data or {}).items():
         if alt := register.async_get_entity_id("sensor", DOMAIN, f"{g_}_{ALT_FILTERUNG}"):
             register.async_remove(alt)
         neu.append(LotusTemperatur(koordinator, g_, "wassertemperatur", "ist"))
@@ -31,13 +46,19 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
         neu.append(LotusMeldungText(koordinator, g_))
         neu += [LotusText(koordinator, g_, z_["titel"]) for z_ in (daten.get("zustaende") or [])
                 if isinstance(z_, dict) and z_.get("titel") in LESEN_TEXT]
-        if daten.get("heizmodus") and not daten["heizmodus"].get("darf"):
+        if daten.get("heizmodus") and not daten["heizmodus"].get("darf") and not registriert(hass, ("select",), f"{g_}_heizmodus"):
             neu.append(LotusHeizmodusStand(koordinator, g_))
-        if daten.get("waermepumpe") and not daten["waermepumpe"].get("darf"):
+        if daten.get("waermepumpe") and not daten["waermepumpe"].get("darf") and not registriert(hass, ("select",), f"{g_}_waermepumpe_modus"):
             neu.append(LotusWaermepumpeStand(koordinator, g_))
+        if c8z(daten).get("zustand"):
+            neu.append(LotusC8zZustand(koordinator, g_))
+        neu += [LotusC8zStand(koordinator, g_, was) for was in C8Z_WAHL
+                if c8z_optionen(daten, was, C8Z_WAHL[was]) and not c8z_wahl(daten, was).get("darf") and not registriert(hass, ("select",), f"{g_}_c8z_{was}")]
+        if isinstance(c8z(daten).get("werte"), dict):
+            neu += [LotusC8zWert(koordinator, g_, *art_) for art_ in C8Z_WERTE]
         neu.append(LotusSollGrund(koordinator, g_))
         neu.append(LotusFilterblock(koordinator, g_))
-        if daten.get("solar") and not daten["solar"].get("darf"):
+        if daten.get("solar") and not daten["solar"].get("darf") and not registriert(hass, ("select",), f"{g_}_solar_betriebsart"):
             neu.append(LotusSolarStand(koordinator, g_))
         neu += [LotusWartungTermin(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or ""))
                 for a_ in ((daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel")]
@@ -56,22 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
             neu += [LotusBadezeitPunkt(koordinator, g_, feld) for feld in ("beginn", "ende")]
     if koordinator.konto is not None:
         neu.append(LotusKontoAbo(koordinator))
-    hinzufuegen(neu)
-    if koordinator.konto is not None:
-        abo_bis_folgen(hass, eintrag, koordinator, hinzufuegen)
-    box_da = {g_ for g_, daten in koordinator.data.items() if (daten.get("box") or {}).get("id")}
-
-    @callback
-    def box_nachziehen() -> None:
-        neu_box: list[SensorEntity] = []
-        for g_, daten in (koordinator.data or {}).items():
-            if (daten.get("box") or {}).get("id") and g_ not in box_da:
-                box_da.add(g_)
-                neu_box += box_sensoren(koordinator, g_)
-        if neu_box:
-            hinzufuegen(neu_box)
-
-    eintrag.async_on_unload(koordinator.async_add_listener(box_nachziehen))
+    return neu
 
 
 def box_sensoren(koordinator: LotusKoordinator, g_: str) -> list[SensorEntity]:
@@ -211,6 +217,85 @@ class LotusWaermepumpeStand(LotusEntitaet, SensorEntity):
     def native_value(self) -> str | None:
         aktiv = str((self.daten.get("waermepumpe") or {}).get("aktiv") or "").lower()
         return aktiv if aktiv in WP_MODI else None
+
+
+class LotusC8zZustand(LotusEntitaet, SensorEntity):
+    _attr_translation_key = "c8z_zustand"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = list(C8Z_ZUSTAENDE)
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str) -> None:
+        super().__init__(koordinator, geraet, "c8z_zustand")
+
+    @property
+    def available(self) -> bool:
+        return super().available and self.native_value is not None
+
+    @property
+    def native_value(self) -> str | None:
+        zustand = str(c8z(self.daten).get("zustand") or "")
+        return zustand if zustand in C8Z_ZUSTAENDE else None
+
+
+class LotusC8zStand(LotusEntitaet, SensorEntity):
+    _attr_device_class = SensorDeviceClass.ENUM
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, was: str) -> None:
+        super().__init__(koordinator, geraet, f"c8z_{was}_stand")
+        self.was = was
+        self._attr_translation_key = f"c8z_{was}"
+        self._attr_options = list(C8Z_WAHL[was])
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(c8z_optionen(self.daten, self.was, C8Z_WAHL[self.was]))
+
+    @property
+    def native_value(self) -> str | None:
+        return c8z_aktiv(self.daten, self.was, C8Z_WAHL[self.was])
+
+
+C8Z_WERTE: tuple[tuple[str, SensorDeviceClass | None, str | None, SensorStateClass | None], ...] = (
+    ("einlass", SensorDeviceClass.TEMPERATURE, UnitOfTemperature.CELSIUS, SensorStateClass.MEASUREMENT),
+    ("auslass", SensorDeviceClass.TEMPERATURE, UnitOfTemperature.CELSIUS, SensorStateClass.MEASUREMENT),
+    ("spreizung", None, UnitOfTemperature.KELVIN, SensorStateClass.MEASUREMENT),
+    ("luft", SensorDeviceClass.TEMPERATURE, UnitOfTemperature.CELSIUS, SensorStateClass.MEASUREMENT),
+    ("luefter", None, None, SensorStateClass.MEASUREMENT),
+    ("verdichter_hz", SensorDeviceClass.FREQUENCY, UnitOfFrequency.HERTZ, SensorStateClass.MEASUREMENT),
+    ("abtauungen_heute", None, None, SensorStateClass.TOTAL_INCREASING),
+    ("letzte_meldung", None, None, None),
+)
+
+
+class LotusC8zWert(LotusEntitaet, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, was: str, klasse: SensorDeviceClass | None, einheit: str | None,
+                 zustandsart: SensorStateClass | None) -> None:
+        super().__init__(koordinator, geraet, f"c8z_{was}")
+        self.was = was
+        self._attr_translation_key = f"c8z_{was}"
+        self._attr_device_class = klasse
+        self._attr_native_unit_of_measurement = einheit
+        self._attr_state_class = zustandsart
+
+    @property
+    def _werte(self) -> dict:
+        werte = c8z(self.daten).get("werte")
+        return werte if isinstance(werte, dict) else {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._werte) and (self.was == "letzte_meldung" or self._werte.get(self.was) is not None)
+
+    @property
+    def native_value(self) -> float | int | str | None:
+        wert = self._werte.get(self.was)
+        if self.was == "letzte_meldung":
+            return str(wert)[:TEXT_MAX] if wert else KEINE_MELDUNG
+        if isinstance(wert, bool) or not isinstance(wert, (int, float)):
+            return None
+        return int(wert) if self.was in ("abtauungen_heute", "verdichter_hz") else float(wert)
 
 
 class LotusSolarStand(LotusEntitaet, SensorEntity):

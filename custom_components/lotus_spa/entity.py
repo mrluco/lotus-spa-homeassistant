@@ -1,14 +1,47 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from typing import Any
 
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import LotusAboNoetig, LotusAnmeldungAbgelaufen, LotusFehler, LotusFrost, LotusKeinRecht, LotusNichtGefunden, LotusPlanGrenze, LotusZuOft
 from .const import BASIS_URL, DOMAIN, HERSTELLER, VERSION
 from .coordinator import LotusKoordinator
+
+
+def nachlegen(eintrag: Any, hinzufuegen: Callable[[list[Entity]], None], finden: Callable[[LotusKoordinator], Iterable[Entity]]) -> None:
+    koordinator = eintrag.runtime_data
+    bekannt: set[str] = set()
+
+    @callback
+    def pruefen() -> None:
+        neu: list[Entity] = []
+        for e_ in finden(koordinator):
+            if e_.unique_id and e_.unique_id not in bekannt:
+                bekannt.add(e_.unique_id)
+                neu.append(e_)
+        if neu:
+            hinzufuegen(neu)
+
+    pruefen()
+    eintrag.async_on_unload(koordinator.async_add_listener(pruefen))
+
+
+def registriert(hass: HomeAssistant, plattformen: Iterable[str], unique_id: str) -> bool:
+    register = er.async_get(hass)
+    return any(register.async_get_entity_id(p_, DOMAIN, unique_id) for p_ in plattformen)
+
+
+def stand_ersetzen(hass: HomeAssistant, plattform: str, unique_id: str) -> None:
+    register = er.async_get(hass)
+    if alt := register.async_get_entity_id(plattform, DOMAIN, unique_id):
+        register.async_remove(alt)
 
 
 class LotusEntitaet(CoordinatorEntity[LotusKoordinator]):

@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusEntitaet
+from .entity import LotusEntitaet, nachlegen, stand_ersetzen
 from .schalter import AUS, art, darf, erste_stufe, ist_an, schalter_liste, symbol
 
 PARALLEL_UPDATES = 1
@@ -18,17 +18,23 @@ WUNSCH_S = 15.0
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
+    nachlegen(eintrag, hinzufuegen, finden)
+
+
+def finden(koordinator: LotusKoordinator) -> list[SwitchEntity]:
     neu: list[SwitchEntity] = []
-    for g_, daten in koordinator.data.items():
-        neu += [LotusSchalter(koordinator, g_, s_["titel"]) for s_ in schalter_liste(daten) if art(s_) == "schalter" and darf(s_)]
+    for g_, daten in (koordinator.data or {}).items():
+        for s_ in schalter_liste(daten):
+            if art(s_) == "schalter" and darf(s_):
+                stand_ersetzen(koordinator.hass, "binary_sensor", f"{g_}_stand_{s_['titel']}")
+                neu.append(LotusSchalter(koordinator, g_, s_["titel"]))
         neu += [LotusBadeerkennung(koordinator, g_, str(b_)) for b_ in ((daten.get("badeerkennung") or {}).get("geraete") or [])]
         if daten.get("wartungspause"):
             neu.append(LotusWartungspause(koordinator, g_))
         neu += [LotusEinstellung(koordinator, g_, was) for was in ("urlaubsmodus", "abendlicht", "boost_sonne") if isinstance(daten.get(QUELLE[was]), dict)]
         if (daten.get("schwimmen") or {}).get("darf"):
             neu.append(LotusSchwimmen(koordinator, g_))
-    hinzufuegen(neu)
+    return neu
 
 
 class LotusSchaltbar(LotusEntitaet):

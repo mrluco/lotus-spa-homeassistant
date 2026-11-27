@@ -150,6 +150,31 @@
           "internal_heat": "Electric"
         }
       },
+      "c8z_modus": {
+        "name": "Heat pump mode",
+        "state": {
+          "aus": "Off",
+          "heizen": "Heat",
+          "kuehlen": "Cool",
+          "beide": "Both"
+        }
+      },
+      "c8z_heizstab": {
+        "name": "Heating element",
+        "state": {
+          "aus": "Off",
+          "auto": "Auto",
+          "immer": "Enabled"
+        }
+      },
+      "c8z_drehzahl": {
+        "name": "Heat pump speed",
+        "state": {
+          "smart": "Auto",
+          "niedrig": "Low",
+          "hoch": "High"
+        }
+      },
       "pflegelauf_dauer": {
         "name": "Care run duration",
         "state": {
@@ -244,6 +269,66 @@
           "chill": "Cooling",
           "internal_heat": "Electric"
         }
+      },
+      "c8z_zustand": {
+        "name": "Heat pump",
+        "state": {
+          "heizt": "Heating",
+          "taut_ab": "Defrosting",
+          "pause": "Taking a break",
+          "stoerung": "Fault",
+          "aus": "Off",
+          "bereit": "Ready"
+        }
+      },
+      "c8z_modus": {
+        "name": "Heat pump mode",
+        "state": {
+          "aus": "Off",
+          "heizen": "Heat",
+          "kuehlen": "Cool",
+          "beide": "Both"
+        }
+      },
+      "c8z_heizstab": {
+        "name": "Heating element",
+        "state": {
+          "aus": "Off",
+          "auto": "Auto",
+          "immer": "Enabled"
+        }
+      },
+      "c8z_drehzahl": {
+        "name": "Heat pump speed",
+        "state": {
+          "smart": "Auto",
+          "niedrig": "Low",
+          "hoch": "High"
+        }
+      },
+      "c8z_einlass": {
+        "name": "Heat pump inlet"
+      },
+      "c8z_auslass": {
+        "name": "Heat pump outlet"
+      },
+      "c8z_spreizung": {
+        "name": "Heat pump temperature rise"
+      },
+      "c8z_luft": {
+        "name": "Air at the heat pump"
+      },
+      "c8z_luefter": {
+        "name": "Heat pump fan"
+      },
+      "c8z_verdichter_hz": {
+        "name": "Heat pump compressor"
+      },
+      "c8z_abtauungen_heute": {
+        "name": "Heat pump defrosts today"
+      },
+      "c8z_letzte_meldung": {
+        "name": "Heat pump last message"
       },
       "soll_grund": {
         "name": "Reason for target temperature"

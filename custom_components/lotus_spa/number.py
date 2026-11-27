@@ -9,15 +9,18 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .api import LotusAbgelehnt
 from .const import DOMAIN
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusEntitaet
+from .entity import LotusEntitaet, nachlegen
 
 PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
+    nachlegen(eintrag, hinzufuegen, finden)
+
+
+def finden(koordinator: LotusKoordinator) -> list[NumberEntity]:
     neu: list[NumberEntity] = []
-    for g_, daten in koordinator.data.items():
+    for g_, daten in (koordinator.data or {}).items():
         if isinstance(daten.get("volumen"), dict):
             neu.append(LotusGrundlage(koordinator, g_, "volumen", UnitOfVolume.LITERS, 1.0, 100000.0, 1.0))
         if isinstance(daten.get("strompreis"), dict):
@@ -30,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
             neu.append(LotusBadewarm(koordinator, g_))
         if (daten.get("schwimmen") or {}).get("darf"):
             neu.append(LotusSchwimmzeit(koordinator, g_))
-    hinzufuegen(neu)
+    return neu
 
 
 async def senden(entitaet: LotusEntitaet, was: str, **werte: float | int | str) -> None:

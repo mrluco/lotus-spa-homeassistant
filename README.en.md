@@ -25,7 +25,7 @@
 ## What you get with the subscription
 
 - **Control:** target temperature, bath-warm, heating mode, pumps, blowers and light, vacation mode, setback and evening light. A two-speed pump offers low and high.
-- **Heat pump:** the mode of your heat pump as in the app, for example Eco Heat, Smart Heat or Electric; only on spas where the app lets you switch it. If you switch the mode with your own automation, leave "Solar boost" off in the app, otherwise two automations set the same mode.
+- **Heat pump:** the mode of your heat pump as in the app, for example Eco Heat, Smart Heat or Electric; only on spas where the app lets you switch it. If you switch the mode with your own automation, leave "Solar boost" off in the app, otherwise two automations set the same mode. With a Clim8Zone heat pump: what it is doing right now (heating, defrosting, taking a break, fault, off, ready), plus heat pump mode, heating element and heat pump speed as in the app, selectable where the app lets you switch them, otherwise shown.
 - **Status:** water temperature, outdoor temperature, filtering, messages with the text from the app, "Warm at" while heating up.
 - **Schedules:** bathing times, filter times and solar mode. A change in Home Assistant is the same as in the app.
 - **Care:** care run with duration, maintenance pause, maintenance tasks with due date and a "done" button.

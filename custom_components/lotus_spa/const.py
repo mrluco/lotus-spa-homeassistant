@@ -20,7 +20,7 @@ HINWEIS_ABO: Final = "abo_noetig"
 
 PFLEGELAUF_AUS: Final = "aus"
 
-VERSION: Final = "0.3.11"
+VERSION: Final = "0.3.12"
 HERSTELLER: Final = "Lotus"
 
 LESEN_AN_AUS: Final = {
@@ -34,6 +34,9 @@ LESEN_AN_AUS: Final = {
 }
 SOLAR_MODI: Final = ("aus", "beobachten", "zeitplan", "temperatur")
 WP_MODI: Final = ("heat_saver", "heat_w_boost", "auto_saver", "auto_w_boost", "chill", "internal_heat")
+C8Z_ZUSTAENDE: Final = ("heizt", "taut_ab", "pause", "stoerung", "aus", "bereit")
+C8Z_WAHL: Final = {"modus": ("aus", "heizen", "kuehlen", "beide"), "heizstab": ("aus", "auto", "immer"), "drehzahl": ("smart", "niedrig", "hoch")}
+C8Z_BEFEHL: Final = {"modus": "c8z_modus", "heizstab": "c8z_heizstab", "drehzahl": "c8z_drehzahl"}
 TAGE_GRUPPEN: Final = {
     "de": {"alle": "Mo–So", "werktags": "Mo–Fr", "wochenende": "Sa–So", "mo": "Mo", "di": "Di", "mi": "Mi", "do": "Do", "fr": "Fr", "sa": "Sa", "so": "So"},
     "en": {"alle": "Mon–Sun", "werktags": "Mon–Fri", "wochenende": "Sat–Sun", "mo": "Mon", "di": "Tue", "mi": "Wed", "do": "Thu", "fr": "Fri", "sa": "Sat",

@@ -153,6 +153,49 @@
       "waermepumpe_modus": {
         "default": "mdi:heat-pump-outline"
       },
+      "c8z_zustand": {
+        "default": "mdi:heat-pump-outline",
+        "state": {
+          "heizt": "mdi:heat-pump",
+          "taut_ab": "mdi:snowflake-melt",
+          "pause": "mdi:pause-circle-outline",
+          "stoerung": "mdi:alert-circle-outline",
+          "aus": "mdi:power-off"
+        }
+      },
+      "c8z_modus": {
+        "default": "mdi:heat-pump-outline"
+      },
+      "c8z_heizstab": {
+        "default": "mdi:heating-coil"
+      },
+      "c8z_drehzahl": {
+        "default": "mdi:speedometer"
+      },
+      "c8z_einlass": {
+        "default": "mdi:thermometer-water"
+      },
+      "c8z_auslass": {
+        "default": "mdi:thermometer-water"
+      },
+      "c8z_spreizung": {
+        "default": "mdi:thermometer-chevron-up"
+      },
+      "c8z_luft": {
+        "default": "mdi:thermometer"
+      },
+      "c8z_luefter": {
+        "default": "mdi:fan"
+      },
+      "c8z_verdichter_hz": {
+        "default": "mdi:sine-wave"
+      },
+      "c8z_abtauungen_heute": {
+        "default": "mdi:snowflake-melt"
+      },
+      "c8z_letzte_meldung": {
+        "default": "mdi:message-alert-outline"
+      },
       "soll_grund": {
         "default": "mdi:information-outline"
       },
@@ -238,6 +281,15 @@
       },
       "waermepumpe_modus": {
         "default": "mdi:heat-pump-outline"
+      },
+      "c8z_modus": {
+        "default": "mdi:heat-pump-outline"
+      },
+      "c8z_heizstab": {
+        "default": "mdi:heating-coil"
+      },
+      "c8z_drehzahl": {
+        "default": "mdi:speedometer"
       },
       "pflegelauf_dauer": {
         "default": "mdi:timer-cog-outline"

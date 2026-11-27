@@ -101,3 +101,22 @@ def voreinstellung_wert(daten: dict[str, Any], text: str) -> tuple[str, str | No
     _, befehl, modi = voreinstellung(daten)
     return befehl, next((str(m_["wert"]) for m_ in modi if heizmodus_text(m_) == text), None)
 
+
+
+def c8z(daten: dict[str, Any]) -> dict[str, Any]:
+    wert = daten.get("clim8zone")
+    return wert if isinstance(wert, dict) else {}
+
+
+def c8z_wahl(daten: dict[str, Any], was: str) -> dict[str, Any]:
+    wert = c8z(daten).get(was)
+    return wert if isinstance(wert, dict) else {}
+
+
+def c8z_optionen(daten: dict[str, Any], was: str, bekannt: tuple[str, ...]) -> list[str]:
+    return [str(m_.get("wert")) for m_ in (c8z_wahl(daten, was).get("modi") or []) if isinstance(m_, dict) and str(m_.get("wert")) in bekannt]
+
+
+def c8z_aktiv(daten: dict[str, Any], was: str, bekannt: tuple[str, ...]) -> str | None:
+    aktiv = str(c8z_wahl(daten, was).get("aktiv") or "")
+    return aktiv if aktiv in c8z_optionen(daten, was, bekannt) else None

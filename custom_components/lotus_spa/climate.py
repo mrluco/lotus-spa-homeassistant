@@ -10,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusEntitaet
+from .entity import LotusEntitaet, nachlegen
 from .schalter import heizmodus_text, voreinstellung, voreinstellung_aktiv, voreinstellung_wert
 
 SOLL_MIN_VORGABE = 10.0
@@ -20,8 +20,7 @@ PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
-    hinzufuegen(LotusThermostat(koordinator, g_) for g_ in koordinator.data)
+    nachlegen(eintrag, hinzufuegen, lambda k_: [LotusThermostat(k_, g_) for g_ in (k_.data or {})])
 
 
 class LotusThermostat(LotusEntitaet, ClimateEntity):

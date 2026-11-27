@@ -6,32 +6,43 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import DOMAIN, PFLEGELAUF_AUS, SOLAR_MODI, WP_MODI
+from .const import C8Z_BEFEHL, C8Z_WAHL, DOMAIN, PFLEGELAUF_AUS, SOLAR_MODI, WP_MODI
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusEntitaet
-from .schalter import heizmodi, heizmodus_aktiv, heizmodus_text, heizmodus_wert, wp_modi, wp_modus
+from .entity import LotusEntitaet, nachlegen, stand_ersetzen
+from .schalter import c8z_aktiv, c8z_optionen, c8z_wahl, heizmodi, heizmodus_aktiv, heizmodus_text, heizmodus_wert, wp_modi, wp_modus
 
 PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
+    nachlegen(eintrag, hinzufuegen, finden)
+
+
+def finden(koordinator: LotusKoordinator) -> list[SelectEntity]:
+    hass = koordinator.hass
     neu: list[SelectEntity] = []
-    for g_, daten in koordinator.data.items():
+    for g_, daten in (koordinator.data or {}).items():
         if (daten.get("heizmodus") or {}).get("darf"):
+            stand_ersetzen(hass, "sensor", f"{g_}_heizmodus_stand")
             neu.append(LotusHeizmodus(koordinator, g_))
         if (daten.get("waermepumpe") or {}).get("darf") and wp_modi(daten, WP_MODI):
+            stand_ersetzen(hass, "sensor", f"{g_}_waermepumpe_modus_stand")
             neu.append(LotusWaermepumpe(koordinator, g_))
+        for was in C8Z_WAHL:
+            if c8z_wahl(daten, was).get("darf") and c8z_optionen(daten, was, C8Z_WAHL[was]):
+                stand_ersetzen(hass, "sensor", f"{g_}_c8z_{was}_stand")
+                neu.append(LotusC8zWahl(koordinator, g_, was))
         if (daten.get("schwimmen") or {}).get("darf"):
             neu += [LotusSchwimmwahl(koordinator, g_, "programm"), LotusSchwimmwahl(koordinator, g_, "stufe"), LotusSchwimmwahl(koordinator, g_, "belastung")]
         if daten.get("pflegelauf"):
             neu.append(LotusPflegelauf(koordinator, g_))
             neu.append(LotusPflegelaufDauer(koordinator, g_))
         if (daten.get("solar") or {}).get("darf"):
+            stand_ersetzen(hass, "sensor", f"{g_}_solar_betriebsart_stand")
             neu.append(LotusSolarBetriebsart(koordinator, g_))
         if isinstance(daten.get("absenkung"), dict):
             neu.append(LotusAbsenkungModus(koordinator, g_))
-    hinzufuegen(neu)
+    return neu
 
 
 class LotusHeizmodus(LotusEntitaet, SelectEntity):
@@ -85,6 +96,33 @@ class LotusWaermepumpe(LotusEntitaet, SelectEntity):
             raise ServiceValidationError(translation_domain=DOMAIN, translation_key="unbekannte_stufe", translation_placeholders={"stufe": option})
         if option != self.current_option:
             await self.befehl("waermepumpe_modus", wahl=option.upper())
+
+
+class LotusC8zWahl(LotusEntitaet, SelectEntity):
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, koordinator: LotusKoordinator, geraet: str, was: str) -> None:
+        super().__init__(koordinator, geraet, f"c8z_{was}")
+        self.was = was
+        self._attr_translation_key = f"c8z_{was}"
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(c8z_wahl(self.daten, self.was).get("darf")) and bool(self.options)
+
+    @property
+    def options(self) -> list[str]:
+        return c8z_optionen(self.daten, self.was, C8Z_WAHL[self.was])
+
+    @property
+    def current_option(self) -> str | None:
+        return c8z_aktiv(self.daten, self.was, C8Z_WAHL[self.was])
+
+    async def async_select_option(self, option: str) -> None:
+        if option not in self.options:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="unbekannte_stufe", translation_placeholders={"stufe": option})
+        if option != self.current_option:
+            await self.befehl(C8Z_BEFEHL[self.was], wahl=option)
 
 
 class LotusSchwimmwahl(LotusEntitaet, SelectEntity):

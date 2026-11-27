@@ -9,7 +9,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util.percentage import ordered_list_item_to_percentage, percentage_to_ordered_list_item
 
 from .const import DOMAIN
-from .coordinator import LotusConfigEntry
+from .coordinator import LotusConfigEntry, LotusKoordinator
+from .entity import nachlegen, stand_ersetzen
 from .schalter import art, darf, ist_an, schalter_liste, stufen
 from .switch import LotusSchaltbar
 
@@ -17,9 +18,17 @@ PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
-    hinzufuegen(LotusPumpe(koordinator, g_, s_["titel"]) for g_, daten in koordinator.data.items()
-                for s_ in schalter_liste(daten) if art(s_) == "luefter" and darf(s_))
+    nachlegen(eintrag, hinzufuegen, finden)
+
+
+def finden(koordinator: LotusKoordinator) -> list[FanEntity]:
+    neu: list[FanEntity] = []
+    for g_, daten in (koordinator.data or {}).items():
+        for s_ in schalter_liste(daten):
+            if art(s_) == "luefter" and darf(s_):
+                stand_ersetzen(koordinator.hass, "binary_sensor", f"{g_}_stand_{s_['titel']}")
+                neu.append(LotusPumpe(koordinator, g_, s_["titel"]))
+    return neu
 
 
 class LotusPumpe(LotusSchaltbar, FanEntity):

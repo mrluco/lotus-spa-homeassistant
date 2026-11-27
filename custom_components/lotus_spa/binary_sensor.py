@@ -10,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DOMAIN, LESEN_AN_AUS
 from .coordinator import LotusConfigEntry, LotusKoordinator
-from .entity import LotusBoxEntitaet, LotusEntitaet
+from .entity import LotusBoxEntitaet, LotusEntitaet, nachlegen, registriert
 from .schalter import darf, ist_an, schalter_liste, stufe_text, symbol
 
 KLASSE: dict[str, BinarySensorDeviceClass] = {
@@ -21,10 +21,13 @@ KLASSE: dict[str, BinarySensorDeviceClass] = {
 
 
 async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinzufuegen: AddConfigEntryEntitiesCallback) -> None:
-    koordinator = eintrag.runtime_data
-    register = er.async_get(hass)
+    nachlegen(eintrag, hinzufuegen, finden)
+
+
+def finden(koordinator: LotusKoordinator) -> list[BinarySensorEntity]:
+    register = er.async_get(koordinator.hass)
     neu: list[BinarySensorEntity] = []
-    for g_, daten in koordinator.data.items():
+    for g_, daten in (koordinator.data or {}).items():
         neu.append(LotusVerbindung(koordinator, g_))
         if (daten.get("box") or {}).get("id"):
             neu.append(LotusBoxVerbindung(koordinator, g_))
@@ -38,10 +41,11 @@ async def async_setup_entry(hass: HomeAssistant, eintrag: LotusConfigEntry, hinz
                 register.async_remove(alt)
         neu += [LotusZustand(koordinator, g_, z_["titel"]) for z_ in (daten.get("zustaende") or [])
                 if isinstance(z_, dict) and z_.get("titel") in LESEN_AN_AUS and isinstance(z_.get("an"), bool) and z_["titel"] not in geschaltet]
-        neu += [LotusSchalterStand(koordinator, g_, s_["titel"], s_.get("art") == "licht") for s_ in schalter_liste(daten) if not darf(s_)]
+        neu += [LotusSchalterStand(koordinator, g_, s_["titel"], s_.get("art") == "licht") for s_ in schalter_liste(daten)
+                if not darf(s_) and not registriert(koordinator.hass, ("switch", "fan", "light"), f"{g_}_schalter_{s_['titel']}")]
         neu += [LotusWartungFaellig(koordinator, g_, str(a_["schluessel"]), str(a_.get("titel") or ""))
                 for a_ in ((daten.get("wartung") or {}).get("aufgaben") or []) if isinstance(a_, dict) and a_.get("schluessel")]
-    hinzufuegen(neu)
+    return neu
     box_da = {g_ for g_, daten in koordinator.data.items() if (daten.get("box") or {}).get("id")}
 
     @callback
