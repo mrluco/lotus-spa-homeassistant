@@ -20,7 +20,7 @@ HINWEIS_ABO: Final = "abo_noetig"
 
 PFLEGELAUF_AUS: Final = "aus"
 
-VERSION: Final = "0.3.12"
+VERSION: Final = "0.3.13"
 HERSTELLER: Final = "Lotus"
 
 LESEN_AN_AUS: Final = {
@@ -50,9 +50,9 @@ HINWEIS_ABO_FUNKTIONEN: Final = "abo_noetig_funktionen"
 HINWEIS_FUNKTIONEN: Final = "abo_funktionen"
 NACHLESEN_S: Final = (2.0, 3.0, 5.0)
 ABO_FUNKTIONEN: Final = {
-    "de": {"urlaub": "Urlaubsmodus", "absenkung": "Absenkung", "warm_um": "Warm um", "wartungspause": "Wartungspause", "badezeiten": "Badezeiten",
+    "de": {"urlaub": "Urlaubsmodus", "absenkung": "Absenkung", "warm_um": "Warm etwa", "wartungspause": "Wartungspause", "badezeiten": "Badezeiten",
            "filterung": "Filterzeiten", "solar": "Heizen mit der Sonne", "verbrauch": "Energie und Kosten"},
-    "en": {"urlaub": "vacation mode", "absenkung": "setback", "warm_um": "warm at", "wartungspause": "maintenance pause", "badezeiten": "bathing times",
+    "en": {"urlaub": "vacation mode", "absenkung": "setback", "warm_um": "warm by about", "wartungspause": "maintenance pause", "badezeiten": "bathing times",
            "filterung": "filter times", "solar": "heating with the sun", "verbrauch": "energy and cost"},
 }
 ABO_ARTEN: Final = ("abo", "abo_unbefristet", "ohne_abo")

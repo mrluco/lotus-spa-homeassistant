@@ -185,7 +185,7 @@ async def test_geraeteinfo(hass: HomeAssistant, eintrag: MockConfigEntry, aiocli
 
     await _einrichten(hass, eintrag, aioclient_mock)
     geraet = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, GERAET), eintrag.entry_id)
-    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.12"
+    assert geraet.name == "Mein Spa" and geraet.manufacturer == "Lotus" and geraet.model == "Whirlpool" and geraet.sw_version == VERSION and VERSION == "0.3.13"
     assert geraet.configuration_url == "https://app.lotusswimspa.de/a/musterspa/spa1/"
 
 
@@ -468,7 +468,7 @@ async def test_wartung(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_
     assert hass.states.get("binary_sensor.mein_spa_wasser_wechseln_fallig").state == STATE_OFF
     leer = hass.states.get("sensor.mein_spa_filter_steuerung")
     assert leer.state == STATE_UNKNOWN and leer.attributes["hinweis"].startswith("Die Erinnerungen deiner Steuerung")
-    assert hass.states.get("sensor.mein_spa_spa_steuerung").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.mein_spa_spa_steuerung").state == STATE_UNKNOWN
     assert termin.attributes["hinweis"] == ""
     assert hass.states.get("binary_sensor.mein_spa_filter_reinigen_fallig").state == STATE_ON
     assert hass.states.get("binary_sensor.mein_spa_filter_steuerung_fallig").state == STATE_OFF
@@ -747,18 +747,24 @@ async def test_energie_und_aussen(hass: HomeAssistant, eintrag: MockConfigEntry,
     assert hass.states.get("sensor.mein_spa_leistung_geschatzt").state == "2800.0"
     assert hass.states.get("sensor.mein_spa_kosten_heute_geschatzt").state == "1.84"
     assert hass.states.get("sensor.mein_spa_aussentemperatur").attributes["attribution"] == "Deutscher Wetterdienst"
-    assert hass.states.get("sensor.mein_spa_warm_um").state == "2026-10-30T17:40:00+00:00"
+    warm = hass.states.get("sensor.mein_spa_warm_etwa_geschatzt")
+    assert warm.state == "2026-10-30T17:40:00+00:00" and warm.attributes["lang"] is False
     aioclient_mock.clear_requests()
-    aioclient_mock.get(STAND, json=stand_beispiel(energie={}, warm_um={"zeit": None}))
+    aioclient_mock.get(STAND, json=stand_beispiel(energie={}, warm_um={"zeit": None, "text": None, "lang": False}))
     await _naechster_abruf(hass)
     assert hass.states.get("sensor.mein_spa_energie_geschatzt").state == STATE_UNAVAILABLE
-    assert hass.states.get("sensor.mein_spa_warm_um").state == STATE_UNAVAILABLE
+    assert hass.states.get("sensor.mein_spa_warm_etwa_geschatzt").state == STATE_UNKNOWN
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel(warm_um={"zeit": None, "text": "länger als eine Woche", "lang": True}))
+    await _naechster_abruf(hass)
+    warm = hass.states.get("sensor.mein_spa_warm_etwa_geschatzt")
+    assert warm.state == STATE_UNKNOWN and warm.attributes["lang"] is True and warm.attributes["text"] == "länger als eine Woche"
 
 
 async def test_ohne_recht_keine_energie(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     await _einrichten(hass, eintrag, aioclient_mock)
     alle = {s_.entity_id for s_ in hass.states.async_all()}
-    assert not any(e_.endswith(("_energie_geschatzt", "_leistung_geschatzt", "_kosten_heute_geschatzt", "_warm_um")) for e_ in alle)
+    assert not any(e_.endswith(("_energie_geschatzt", "_leistung_geschatzt", "_kosten_heute_geschatzt", "_warm_um", "_warm_etwa_geschatzt")) for e_ in alle)
     assert not any(e_.startswith("number.") for e_ in alle)
 
 
@@ -934,7 +940,7 @@ async def test_abo_hinweis_mit_funktionen(hass: HomeAssistant, eintrag: MockConf
     assert _lotus_hinweise(hass) == [kennung]
     hinweis = ir.async_get(hass).async_get_issue(DOMAIN, kennung)
     assert hinweis.severity == ir.IssueSeverity.ERROR and hinweis.translation_key == "abo_noetig_funktionen" and URL(hinweis.learn_more_url).path == "/abo"
-    assert hinweis.translation_placeholders == {"funktionen": "Urlaubsmodus, Absenkung, Warm um"} and not hinweis.is_fixable
+    assert hinweis.translation_placeholders == {"funktionen": "Urlaubsmodus, Absenkung, Warm etwa"} and not hinweis.is_fixable
     assert _befehle(aioclient_mock) == []
     aioclient_mock.clear_requests()
     aioclient_mock.get(STAND, status=402, json={"ok": False, "zugang": "abo_noetig", "text": "Home Assistant gehört zum Abo."})
@@ -1013,12 +1019,33 @@ async def test_filterzeit_kennung_bleibt(hass: HomeAssistant, eintrag: MockConfi
     assert hass.states.get(alt.entity_id).state == "09:00:00"
 
 
-async def test_ohne_termin_nicht_verfuegbar(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+async def test_ohne_termin_unbekannt(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
     wartung = {"darf": True, "aufgaben": [{"schluessel": "pack:Filter", "titel": "Filter (Steuerung)", "text": "noch nicht gelesen", "faellig": False,
                                            "vorwarnung": False, "faellig_am": None, "tage_uebrig": None, "erledigen": False}]}
     await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(wartung=wartung, pflegelauf=None))
     termin = er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{GERAET}_wartung_pack_Filter")
-    assert termin is not None and hass.states.get(termin).state == STATE_UNAVAILABLE
+    assert termin is not None and hass.states.get(termin).state == STATE_UNKNOWN
+
+
+async def test_ohne_wert_unbekannt_getrennt_nicht_verfuegbar(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    wartung = {"darf": True, "aufgaben": [{"schluessel": "oxidizer", "titel": "Oxidizer", "text": "noch nicht vermerkt", "faellig": False,
+                                           "vorwarnung": False, "faellig_am": None, "tage_uebrig": None, "erledigen": True}]}
+    stand = stand_beispiel(wartung=wartung, wartungspause={"laeuft": False, "minuten": 30, "bis": None}, warm_um={"zeit": None, "text": None, "lang": False})
+    await _einrichten(hass, eintrag, aioclient_mock, stand)
+    register = er.async_get(hass)
+    namen = [register.async_get_entity_id("sensor", DOMAIN, f"{GERAET}_{k_}") for k_ in ("wartung_oxidizer", "wartungspause_ende", "pflegelauf_ende", "warm_um")]
+    assert all(namen) and [hass.states.get(n_).state for n_ in namen] == [STATE_UNKNOWN] * 4
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel(**{**{k_: stand["geraete"][GERAET][k_] for k_ in ("wartung", "wartungspause", "warm_um")}, "verbunden": False}))
+    await _naechster_abruf(hass)
+    assert [hass.states.get(n_).state for n_ in namen] == [STATE_UNAVAILABLE] * 4
+
+
+async def test_warm_etwa_behaelt_entity_id(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    alt = er.async_get(hass).async_get_or_create("sensor", DOMAIN, f"{GERAET}_warm_um", suggested_object_id="mein_spa_warm_um", config_entry=eintrag)
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(warm_um={"zeit": "2026-10-30T18:40:00+01:00", "text": "heute gegen 18:40 Uhr", "lang": False}))
+    assert alt.entity_id == "sensor.mein_spa_warm_um" and hass.states.get("sensor.mein_spa_warm_um").state == "2026-10-30T17:40:00+00:00"
+    assert hass.states.get("sensor.mein_spa_warm_um").attributes["text"] == "heute gegen 18:40 Uhr"
 
 
 
@@ -1123,7 +1150,7 @@ C8Z_FIRMA = {
     "werte": {"einlass": 30.1, "auslass": 33.4, "spreizung": 3.3, "luft": 6.5, "luefter": 41, "verdichter_hz": 48, "abtauungen_heute": 2,
               "letzte_meldung": "Code 76 „Not Running“ — die Clim8Zone meldet An, der Verdichter steht aber (27.11. 09:30 Uhr)"},
 }
-C8Z_WERTE_IDS = ("sensor.mein_spa_warmepumpe_einlass", "sensor.mein_spa_warmepumpe_auslass", "sensor.mein_spa_warmepumpe_spreizung",
+C8Z_WERTE_IDS = ("sensor.mein_spa_warmepumpe_wasser_rein", "sensor.mein_spa_warmepumpe_wasser_raus", "sensor.mein_spa_warmepumpe_unterschied",
                  "sensor.mein_spa_luft_an_der_warmepumpe", "sensor.mein_spa_warmepumpe_lufter", "sensor.mein_spa_warmepumpe_verdichter",
                  "sensor.mein_spa_warmepumpe_abtauungen_heute", "sensor.mein_spa_warmepumpe_letzte_meldung")
 
@@ -1138,11 +1165,11 @@ async def test_c8z_firma(hass: HomeAssistant, eintrag: MockConfigEntry, aioclien
     assert hass.states.get("select.mein_spa_drehzahl_warmepumpe").attributes["options"] == ["smart", "niedrig", "hoch"]
     alle = {s_.entity_id for s_ in hass.states.async_all()}
     assert not {"sensor.mein_spa_modus_warmepumpe", "sensor.mein_spa_heizstab", "sensor.mein_spa_drehzahl_warmepumpe"} & alle, "⚠ kein Stand neben der Wahl"
-    assert float(hass.states.get("sensor.mein_spa_warmepumpe_einlass").state) == 30.1
-    assert hass.states.get("sensor.mein_spa_warmepumpe_einlass").attributes["unit_of_measurement"] == "°C"
+    assert float(hass.states.get("sensor.mein_spa_warmepumpe_wasser_rein").state) == 30.1
+    assert hass.states.get("sensor.mein_spa_warmepumpe_wasser_rein").attributes["unit_of_measurement"] == "°C"
     assert int(hass.states.get("sensor.mein_spa_warmepumpe_verdichter").state) == 48
     assert hass.states.get("sensor.mein_spa_warmepumpe_verdichter").attributes["unit_of_measurement"] == "Hz"
-    assert hass.states.get("sensor.mein_spa_warmepumpe_spreizung").attributes["unit_of_measurement"] == "K"
+    assert hass.states.get("sensor.mein_spa_warmepumpe_unterschied").attributes["unit_of_measurement"] == "K"
     assert hass.states.get("sensor.mein_spa_warmepumpe_letzte_meldung").state.startswith("Code 76")
     register = er.async_get(hass)
     assert all(register.async_get(e_).entity_category == EntityCategory.DIAGNOSTIC for e_ in C8Z_WERTE_IDS)
@@ -1169,6 +1196,25 @@ async def test_c8z_kunde(hass: HomeAssistant, eintrag: MockConfigEntry, aioclien
     assert hass.states.get("sensor.mein_spa_heizstab").state == "auto"
     assert not set(C8Z_WERTE_IDS) & alle, "⚠ Privatkunde bekommt keine Messwerte"
     assert not any("drehzahl" in e_ for e_ in alle)
+
+
+async def test_c8z_kunde_mit_abo_messwerte(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:
+    werte = {**C8Z_FIRMA["werte"], "letzte_meldung": "Wärmepumpe macht eine Pause (27.11. um 09:30 Uhr)"}
+    c8z = {"zustand": "heizt", "modus": {**C8Z_FIRMA["modus"], "darf": False}, "heizstab": {**C8Z_FIRMA["heizstab"], "darf": False},
+           "drehzahl": {**C8Z_FIRMA["drehzahl"], "darf": True}, "werte": werte}
+    await _einrichten(hass, eintrag, aioclient_mock, stand_beispiel(clim8zone=json.loads(json.dumps(c8z))))
+    assert float(hass.states.get("sensor.mein_spa_warmepumpe_wasser_raus").state) == 33.4
+    assert hass.states.get("sensor.mein_spa_warmepumpe_letzte_meldung").state == "Wärmepumpe macht eine Pause (27.11. um 09:30 Uhr)"
+    assert "Code" not in hass.states.get("sensor.mein_spa_warmepumpe_letzte_meldung").state
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel(clim8zone={**c8z, "werte": dict.fromkeys(werte)}))
+    await _naechster_abruf(hass)
+    assert all(hass.states.get(e_).state == STATE_UNKNOWN for e_ in C8Z_WERTE_IDS if not e_.endswith("letzte_meldung")), "ohne Wert Unbekannt"
+    assert hass.states.get("sensor.mein_spa_warmepumpe_letzte_meldung").state == "Keine Meldung"
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STAND, json=stand_beispiel(clim8zone={**c8z, "werte": None}))
+    await _naechster_abruf(hass, 4)
+    assert all(hass.states.get(e_).state == STATE_UNAVAILABLE for e_ in C8Z_WERTE_IDS), "⚠ NEGATIV ohne Recht Nicht verfügbar"
 
 
 async def test_ohne_c8z_nichts_neues(hass: HomeAssistant, eintrag: MockConfigEntry, aioclient_mock: AiohttpClientMocker) -> None:

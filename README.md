@@ -25,7 +25,7 @@
 ## Was du mit dem Abo bekommst
 
 - **Bedienen:** Wunschtemperatur, Badewarm, Heizmodus, Pumpen, Blower und Licht, Urlaubsmodus, Absenkung und Abendlicht. Eine Pumpe mit zwei Stufen bietet „Niedrig“ und „Hoch“.
-- **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm um“ beim Aufheizen.
+- **Sehen:** Wassertemperatur, Außentemperatur, Filterung, Meldungen mit dem Text aus der App, „Warm etwa (geschätzt)“ beim Aufheizen.
 - **Planen:** Badezeiten, Filterzeiten und Solar-Betriebsart. Eine Änderung in Home Assistant ist dieselbe wie in der App.
 - **Pflegen:** Pflegelauf mit Dauer, Wartungspause, Wartungsaufgaben mit Termin und Knopf „erledigt“.
 - **Verbrauch:** Energie für das Energie-Dashboard, Leistung und geschätzte Kosten von heute. Beckeninhalt und Strompreis kannst du hier ändern.
@@ -47,7 +47,7 @@ Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Ei
 | Heizmodus | die Modi deiner Steuerung, wie in der App; auch am Thermostat als Voreinstellung |
 | Schwimmen, Schwimmprogramm, Schwimmstufe, Belastung, Schwimmzeit | die Gegenstromanlage starten und beenden und die Auswahl wie in der Schwimmkarte der App; eine in der App festgelegte Höchststufe gilt auch hier |
 | Wärmepumpe | der Modus deiner Wärmepumpe wie in der App, zum Beispiel Eco Heat, Smart Heat oder Elektro; nur an Spas, an denen die App ihn schalten lässt; schaltest du den Modus mit einer eigenen Automation, lass in der App „Boost mit Sonne“ aus, sonst stellen zwei Automatiken am selben Modus |
-| Wärmepumpe (Clim8Zone) | was die Wärmepumpe gerade tut (heizt, taut ab, macht Pause, Störung, aus, bereit); dazu „Modus Wärmepumpe“, „Heizstab“ und „Drehzahl Wärmepumpe“ wie die Kacheln der App: zum Wählen, wenn die App sie dich schalten lässt, sonst zum Ansehen |
+| Wärmepumpe (Clim8Zone) | was die Wärmepumpe gerade tut (heizt, taut ab, macht Pause, Störung, aus, bereit); dazu „Modus Wärmepumpe“, „Heizstab“ und „Drehzahl Wärmepumpe“ wie die Kacheln der App: zum Wählen, wenn die App sie dich schalten lässt, sonst zum Ansehen; mit dem Abo dazu die Messwerte (Wasser rein und raus, Unterschied, Luft, Lüfter, Verdichter, Abtauungen heute, letzte Meldung) als Diagnose, genau wie die App sie dir zeigt |
 | Pflegelauf | starten (pH plus, pH minus, Chlor/SWT, Sonstiges) und beenden; dazu „Pflegelauf Dauer“ für den nächsten Lauf und „Pflegelauf endet“ |
 | Wartungspause | anhalten und wieder starten wie in der App, mit „Wartungspause endet“; bei Frostgefahr startet sie nicht, der Frostschutz hat Vorrang |
 | Urlaubsmodus, Urlaubstemperatur | ein- und ausschalten und die Temperatur im Urlaub, wie die Kachel der App |
@@ -68,7 +68,7 @@ Ohne Abo zeigt Home Assistant deinen Spa als „nicht verfügbar“ und unter Ei
 | Filterzeiten | Beginn und Ende je Filterlauf; eine Änderung übernimmt Lotus zum nächsten Beginn, nie sofort. Solange „Solar führt“, nur zum Ansehen |
 | Wartung | je Aufgabe aus der App: nächster Termin, ob sie fällig ist, und ein Knopf „erledigt“; ruht eine Erinnerung deiner Steuerung (zum Beispiel bei chlorfreier Pflege), steht das mit dem Grund dabei; hat deine Steuerung ihre Erinnerungen noch nicht gemeldet, steht dort, was du tun kannst |
 | Außentemperatur | der Wert aus der App (Deutscher Wetterdienst) |
-| Warm um | wann dein Wasser warm ist, solange geheizt wird |
+| Warm etwa (geschätzt) | wann dein Wasser etwa warm ist, solange geheizt wird, dieselbe Zeit wie in der App; dauert es länger als eine Woche, steht das im Text |
 | Energie, Leistung, Kosten heute | wie die Verbrauchsseite der App: Energie dieses Jahres für das Energie-Dashboard, Leistung jetzt, Kosten heute (geschätzt) |
 | Beckeninhalt, Strompreis | ansehen und ändern wie in der App; eine Änderung gilt auch dort |
 | Lotus Box | nur wenn dein Spa über eine Lotus Box verbunden ist: Verbindung und WLAN-Empfang, dazu WLAN-Name und Signal, soweit du sie in der App siehst |

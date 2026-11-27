@@ -307,13 +307,13 @@
         }
       },
       "c8z_einlass": {
-        "name": "Heat pump inlet"
+        "name": "Heat pump water in"
       },
       "c8z_auslass": {
-        "name": "Heat pump outlet"
+        "name": "Heat pump water out"
       },
       "c8z_spreizung": {
-        "name": "Heat pump temperature rise"
+        "name": "Heat pump difference"
       },
       "c8z_luft": {
         "name": "Air at the heat pump"
@@ -383,7 +383,15 @@
         "name": "Outdoor temperature"
       },
       "warm_um": {
-        "name": "Warm at"
+        "name": "Warm by about (estimated)",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          },
+          "lang": {
+            "name": "Longer than a week"
+          }
+        }
       },
       "energie": {
         "name": "Energy (estimated)"

@@ -286,7 +286,7 @@ class LotusC8zWert(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool(self._werte) and (self.was == "letzte_meldung" or self._werte.get(self.was) is not None)
+        return super().available and bool(self._werte)
 
     @property
     def native_value(self) -> float | int | str | None:
@@ -337,8 +337,7 @@ class LotusWartungTermin(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        a_ = self.aufgabe(self.schluessel)
-        return super().available and bool(a_.get("faellig_am") or a_.get("hinweis"))
+        return super().available and bool(self.aufgabe(self.schluessel))
 
     @property
     def native_value(self) -> date | None:
@@ -365,7 +364,7 @@ class LotusEnde(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool((self.daten.get(self.was) or {}).get("bis"))
+        return super().available and isinstance(self.daten.get(self.was), dict)
 
     @property
     def native_value(self) -> datetime | None:
@@ -398,12 +397,17 @@ class LotusWarmUm(LotusEntitaet, SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and bool((self.daten.get("warm_um") or {}).get("zeit"))
+        return super().available and isinstance(self.daten.get("warm_um"), dict)
 
     @property
     def native_value(self) -> datetime | None:
         wert = (self.daten.get("warm_um") or {}).get("zeit")
         return dt_util.parse_datetime(str(wert)) if wert else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str | bool]:
+        stand = self.daten.get("warm_um") or {}
+        return {"text": str(stand.get("text") or ""), "lang": bool(stand.get("lang"))}
 
 
 class LotusEnergieBasis(LotusEntitaet, SensorEntity):

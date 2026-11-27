@@ -307,13 +307,13 @@
         }
       },
       "c8z_einlass": {
-        "name": "Wärmepumpe Einlass"
+        "name": "Wärmepumpe Wasser rein"
       },
       "c8z_auslass": {
-        "name": "Wärmepumpe Auslass"
+        "name": "Wärmepumpe Wasser raus"
       },
       "c8z_spreizung": {
-        "name": "Wärmepumpe Spreizung"
+        "name": "Wärmepumpe Unterschied"
       },
       "c8z_luft": {
         "name": "Luft an der Wärmepumpe"
@@ -383,7 +383,15 @@
         "name": "Außentemperatur"
       },
       "warm_um": {
-        "name": "Warm um"
+        "name": "Warm etwa (geschätzt)",
+        "state_attributes": {
+          "text": {
+            "name": "Text"
+          },
+          "lang": {
+            "name": "Länger als eine Woche"
+          }
+        }
       },
       "energie": {
         "name": "Energie (geschätzt)"
